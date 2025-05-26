@@ -49,10 +49,30 @@
             <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('daily')">🗺️ 每日详解</button>
             <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('food')">🍜 美食寻味</button>
             <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('tips')">💡 出行锦囊</button>
-	    <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('music')">🎵 音乐节</button>
+            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('music')">🎵 音乐节</button>
+            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('thanks')">✨ 特别鸣谢</button>
         </div>
     </nav>
 
+    <!-- 在 main 内合适位置添加如下内容（建议放在其它 section 后面） -->
+    <section id="thanks" class="content-section">
+        <div class="flex flex-col items-center justify-center min-h-[350px] animate-fade-in">
+            <img src="https://miaobi-lite.bj.bcebos.com/miaobi/5mao/b%276IC/6ay85aS05YOPXzE3MzUzMjQwMTIuNzgxNzk4MV8xNzM1MzI0MDEzLjIxODIxNTVfMTczNTMyNDAxMy45NjM4MTk3XzE3MzUzMjQwMTQuNjUwMjQxNF8xNzM1MzI0MDE1LjMxOTU3ODJfMTczNTMyNDAxNS45ODg5NjAzXzE3MzUzMjQwMTYuODA1MjE0Ml8xNzM1MzI0MDE3LjY1Mjg2OA%3D%3D%27/7.png" alt="统筹啊b头像" class="w-36 h-36 rounded-full shadow-lg border-4 border-orange-300 mb-6 animate-bounce-slow">
+            <h2 class="text-3xl font-bold text-orange-600 mb-2 animate-slide-in">特别鸣谢</h2>
+            <h3 class="text-xl font-semibold text-teal-700 mb-2 animate-slide-in">啊b</h3>
+            <p class="text-gray-700 text-center max-w-xl animate-fade-in"></p>
+        </div>
+    </section>
+
+    <!-- 在 <style> 标签内添加动画样式 -->
+    <style>
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slide-in { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+    .animate-fade-in { animation: fade-in 1.2s ease; }
+    .animate-slide-in { animation: slide-in 1s cubic-bezier(.4,2,.6,1) both; }
+    .animate-bounce-slow { animation: bounce-slow 2.5s infinite; }
+    </style>
     <main class="container mx-auto p-4 sm:p-6">
         <section id="overview" class="content-section active">
             <h2 class="text-2xl font-bold mb-6 text-orange-600">🗓️ 行程概览</h2>
@@ -183,7 +203,7 @@
                                 <p class="text-gray-600 mb-1">建议游玩：2.5-3小时</p>
                                 <p class="text-gray-600 mb-1">看点：青年毛泽东艺术雕像、湘江风光、公园漫步。《沁园春·长沙》意境。</p>
                                 <p class="text-gray-600 mb-1">开放时间：公园约7:00-22:00。</p>
-                                <p class="text-gray-600 mb-1">门票：免费入园。观光车约20元/人。旺季可能需预约入园。</p>
+                                <p class="text-gray-600 mb-1">门票：免费入园。观光车约20元/人。 Thai 高峰期可能需预约入园。</p>
                                 <p class="text-gray-600 mb-1">烟花：5月30日通常无常规烟花。</p>
                                 <p class="text-gray-600">交通：地铁2号线至橘子洲站。</p>
                             </div>
