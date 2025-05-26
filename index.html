@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星城风味：长沙🍓艺接游</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Visualization & Content Choices:
+        - Itinerary Overview: HTML/CSS summary cards. Chart.js bar chart for estimated daily activity time. Goal: Quick summary & time visualization. Interaction: Tab navigation.
+        - Detailed Days: Attraction Cards (HTML/CSS/Images) with dynamic show/hide for details & Day 2 choice (JS). Goal: Inform on specifics. Interaction: Selection, toggles.
+        - Transport Table: HTML table. Goal: Compare options.
+        - Food Guide: Food Cards (HTML/CSS). Goal: Showcase dishes.
+        - Travel Tips: Accordion (HTML/CSS/JS). Goal: Practical advice.
+        - Justification: Interactive elements, images, and visual summaries improve engagement and comprehension of the travel plan. Structure supports non-linear exploration.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FFF7ED; color: #374151; }
+        .tab-button { transition: all 0.3s ease; }
+        .tab-button.active { background-color: #F97316; color: white; }
+        .tab-button:not(.active):hover { background-color: #FFEDD5; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .accordion-button.active + .accordion-content { max-height: 1000px; /* Adjust as needed */ }
+        .card { background-color: #FFFAF0; border: 1px solid #FFEDD5; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .table th, .table td { border: 1px solid #FED7AA; padding: 0.5rem; text-align: left; }
+        .table th { background-color: #FFEDD5; }
+        .attraction-image { width: 100%; height: 200px; object-fit: cover; border-radius: 0.375rem; margin-bottom: 0.75rem; }
+        @media (min-width: 640px) {
+            .attraction-card-layout { display: flex; align-items: flex-start; }
+            .attraction-image-container { flex-shrink: 0; width: 33.333333%; margin-right: 1rem; margin-bottom: 0; }
+            .attraction-image { height: auto; max-height:180px;}
+            .attraction-details { flex-grow: 1; }
+        }
+    </style>
+</head>
+<body class="bg-amber-50 text-gray-700">
+
+    <header class="bg-orange-500 text-white p-6 shadow-md">
+        <h1 class="text-3xl font-bold text-center">星城风味：长沙🍓艺接游</h1>
+    </header>
+
+    <nav class="bg-amber-100 p-4 sticky top-0 z-50 shadow">
+        <div class="container mx-auto flex flex-wrap justify-center space-x-2 sm:space-x-4">
+            <button class="tab-button active text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('overview')">🗓️ 行程概览</button>
+            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('daily')">🗺️ 每日详解</button>
+            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('food')">🍜 美食寻味</button>
+            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('tips')">💡 出行锦囊</button>
+	    <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('music')">🎵 音乐节</button>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 sm:p-6">
+        <section id="overview" class="content-section active">
+            <h2 class="text-2xl font-bold mb-6 text-orange-600">🗓️ 行程概览</h2>
+            <p class="mb-6 text-gray-600">欢迎来到长沙！这份1.5日的行程旨在让您高效体验长沙的核心魅力。以下是您的行程亮点，助您快速了解整体安排。</p>
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-3 text-teal-700">第一天 (5月29日): 都市霓虹与湘江夜色</h3>
+                    <p class="text-gray-600 mb-2">培训结束后，从会展中心出发，直奔长沙的心脏地带——五一广场。傍晚时分，您将打卡IFS国金中心的网红雕塑，漫步于繁华的黄兴路步行街，品尝地道的南门口小吃，最后在杜甫江阁欣赏迷人的湘江夜景。</p>
+                    <p class="text-sm text-gray-500">主要活动区域：五一商圈、湘江沿岸</p>
+                    <p class="text-sm text-gray-500">预计活动时长：约6小时 (下午4:30 - 晚上10:30+)</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-3 text-teal-700">第二天 (5月30日): 历史、文化与艺术的交融</h3>
+                    <p class="text-gray-600 mb-2">今日您将深度体验长沙的文脉。上午可在橘子洲头缅怀伟人，或在湖南省博物馆探寻马王堆的千年秘密（二选一）。午后登临岳麓山，拜访千年学府岳麓书院。若时间充裕，傍晚还可前往后湖艺术园感受现代艺术的熏陶。</p>
+                    <p class="text-sm text-gray-500">主要活动区域：橘子洲/省博、岳麓山、后湖</p>
+                    <p class="text-sm text-gray-500">预计活动时长：约9-10小时 (全天)</p>
+                </div>
+            </div>
+            <div class="card p-6">
+                <h3 class="text-xl font-semibold mb-4 text-teal-700">每日活动时间参考</h3>
+                 <p class="mb-4 text-gray-600">下图大致展示了每日主要游玩时间的分配，具体时长会因您的游览节奏和选择而有所不同。</p>
+                <div class="chart-container">
+                    <canvas id="timeAllocationChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="daily" class="content-section">
+            <h2 class="text-2xl font-bold mb-6 text-orange-600">🗺️ 每日详解</h2>
+           
+            <!-- 下面是原有的每日详解内容 -->
+            <p class="mb-6 text-gray-600">请注意，部分热门景点需要提前预约。学生证半价专区：橘子洲小火车、杜甫江阁、岳麓书院、古开福寺</p>
+            <div class="mb-6 flex justify-center space-x-4">
+                <button id="day1Btn" class="py-2 px-4 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400" onclick="showDayDetail('day1Detail', this)">第一天详情</button>
+                <button id="day2Btn" class="py-2 px-4 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400" onclick="showDayDetail('day2Detail', this)">第二天详情</button>
+            </div>
+
+            <div id="day1Detail" class="day-detail-content">
+                <h3 class="text-xl font-semibold mb-4 text-teal-700">第一天：5月29日 —— 从会展中心到都市霓虹</h3>
+                <div class="space-y-6">
+                    <div class="card p-6">
+                        <div class="attraction-card-layout">
+                            <div class="attraction-image-container">
+                                <img src="https://th.bing.com/th/id/OIP.Fjkz-FP22pf__XmkYQNYJgHaER?cb=iwc2&rs=1&pid=ImgDetMain" alt="长沙国际会展中心" class="attraction-image">
+                            </div>
+                            <div class="attraction-details">
+                                <h4 class="font-bold text-lg mb-2">🕒 约下午4:30：培训结束</h4>
+                                <p class="text-gray-600">地点：长沙国际会展中心</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card p-6">
+                        <h4 class="font-bold text-lg mb-2">🚗 下午4:30 - 傍晚5:45：前往五一广场区域</h4>
+                        <p class="text-gray-600 mb-1"><strong class="text-orange-600">地铁 (推荐):</strong> 从光达站 (地铁2号线) 至五一广场站。</p>
+                        <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
+                            <li>线路：2号线，12个站点 (光达 → 五一广场)。</li>
+                            <li>耗时：约35分钟 (含进出站及等候)。</li>
+                            <li>票价：预计4-5元。</li>
+                        </ul>
+                        <p class="text-gray-600 mt-2 mb-1"><strong class="text-orange-600">滴滴:</strong></p>
+                        <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
+                            <li>距离与耗时：约17-18公里，32分钟 (高峰期可能更长)。</li>
+                            <li>费用：预计30元。</li>
+                        </ul>
+                        <p class="mt-2 text-sm text-teal-600">💡 提示：下午高峰期，地铁更高效且经济。</p>
+                    </div>
+                    <div class="card p-6">
+                        <h4 class="font-bold text-lg mb-2">🌃 傍晚5:45 - 晚上10:30+：夜游核心商圈</h4>
+                        <p class="text-gray-600 mb-3">此段行程紧凑，以体验都市活力和夜景为主。</p>
+                        <div class="space-y-4">
+                            <div class="attraction-card-layout">
+                                <div class="attraction-image-container">
+                                    <img src="https://th.bing.com/th/id/R.34d76cf11ac43ff55653ffde6094a758?rik=bIIgby0OhNX20A&pid=ImgRaw&r=0&sres=1&sresct=1" alt="IFS国金中心KAWS雕塑" class="attraction-image">
+                                </div>
+                                <div class="attraction-details">
+                                    <p><strong class="text-orange-600">A. 五一广场 & IFS国金中心</strong> (预计游览: 傍晚5:45 - 晚上7:00)</p>
+                                    <p class="text-sm text-gray-500 ml-4">看点：KAWS雕塑 (IFS 7楼楼顶，可能需排队)、繁华夜景。IFS商场约22:00关门。</p>
+                                </div>
+                            </div>
+                            <div class="attraction-card-layout">
+                                <div class="attraction-image-container">
+                                     <img src="https://th.bing.com/th/id/OIP.xrEhCsMkKuQ0rt3Cx7_qQAHaH4?cb=iwc2&rs=1&pid=ImgDetMain" alt="黄兴路步行街" class="attraction-image">
+                                </div>
+                                <div class="attraction-details">
+                                    <p><strong class="text-orange-600">B. 黄兴路步行街</strong> (预计游览: 晚上7:00 - 晚上8:00)</p>
+                                    <p class="text-sm text-gray-500 ml-4">特色：热闹商业街，小吃遍布，霓虹闪烁。可品尝黑色经典臭豆腐。</p>
+                                </div>
+                            </div>
+                            <div class="attraction-card-layout">
+                                 <div class="attraction-image-container">
+                                    <img src="https://th.bing.com/th/id/R.4c09d2f661fde1f50a8e11eddd8e40c3?rik=bGWv6tDOhHOotg&pid=ImgRaw&r=0" alt="南门口美食" class="attraction-image">
+                                </div>
+                                <div class="attraction-details">
+                                    <p><strong class="text-orange-600">C. 晚餐：南门口或五一广场周边</strong> (预计用餐: 晚上8:00 - 晚上9:00)</p>
+                                    <p class="text-sm text-gray-500 ml-4">南门口：地道小吃街 (老坛剁椒手撕鸡、金记糖油坨坨等)。五一广场周边：选择众多，文和友可能排队久。</p>
+                                </div>
+                            </div>
+                            <div class="attraction-card-layout">
+                                 <div class="attraction-image-container">
+                                    <img src="https://th.bing.com/th/id/R.aa7e565102bad9b50b5c77c1f383b280?rik=bJ5YKUF%2bDU%2foxw&pid=ImgRaw&r=0" alt="杜甫江阁" class="attraction-image">
+                                </div>
+                                <div class="attraction-details">
+                                    <p><strong class="text-orange-600">D. 杜甫江阁</strong> (预计游览: 晚上9:15 - 晚上10:15)</p>
+                                    <p class="text-sm text-gray-500 ml-4">特色：纪念杜甫，观湘江夜景。开放至约22:00-22:30，亮灯约19:00/19:30 - 22:30/23:30。门票约11-20元，学生证半价。交通：南门口步行15-20分钟，或地铁2号线至湘江中路站。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="day2Detail" class="day-detail-content" style="display:none;">
+                <h3 class="text-xl font-semibold mb-4 text-teal-700">第二天：5月30日 —— 历史、文化与艺术的深度体验</h3>
+                 <p class="mb-4 text-gray-600">今日上午行程二选一，请根据您的兴趣选择：</p>
+                <div class="flex space-x-4 mb-6 justify-center">
+                    <button class="day2-option-btn active py-2 px-4 bg-orange-500 text-white rounded-md" onclick="showDay2Option('juzizhou', this)">🍊 橘子洲</button>
+                    <button class="day2-option-btn py-2 px-4 bg-teal-600 text-white rounded-md" onclick="showDay2Option('museum', this)">🏛️ 湖南省博物馆</button>
+                </div>
+
+                <div id="juzizhou" class="day2-option-content active space-y-6">
+                    <div class="card p-6">
+                        <div class="attraction-card-layout">
+                            <div class="attraction-image-container">
+                                <img src="https://th.bing.com/th/id/OIP.TUH9wC8TOCMmQKe541gEtwHaE8?cb=iwc2&rs=1&pid=ImgDetMain" alt="橘子洲头青年毛泽东雕像" class="attraction-image">
+                            </div>
+                            <div class="attraction-details">
+                                <h4 class="font-bold text-lg mb-2">🏞️ 上午 (约9:00 - 13:00)：橘子洲 (Júzi Zhōu)</h4>
+                                <p class="text-gray-600 mb-1">建议游玩：2.5-3小时</p>
+                                <p class="text-gray-600 mb-1">看点：青年毛泽东艺术雕像、湘江风光、公园漫步。《沁园春·长沙》意境。</p>
+                                <p class="text-gray-600 mb-1">开放时间：公园约7:00-22:00。</p>
+                                <p class="text-gray-600 mb-1">门票：免费入园。观光车约20元/人。旺季可能需预约入园。</p>
+                                <p class="text-gray-600 mb-1">烟花：5月30日通常无常规烟花。</p>
+                                <p class="text-gray-600">交通：地铁2号线至橘子洲站。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="museum" class="day2-option-content space-y-6" style="display:none;">
+                     <div class="card p-6">
+                        <div class="attraction-card-layout">
+                            <div class="attraction-image-container">
+                                <img src="https://th.bing.com/th/id/OIP.TN6-4cxjnJReNZq6YVzDlgHaEx?cb=iwc2&rs=1&pid=ImgDetMain" alt="湖南省博物馆" class="attraction-image">
+                            </div>
+                            <div class="attraction-details">
+                                <h4 class="font-bold text-lg mb-2">🏛️ 上午 (约9:00 - 13:00)：湖南省博物馆 (Húnán Shěng Bówùguǎn)</h4>
+                                <p class="text-gray-600 mb-1">建议参观：2.5-3小时 (含路途)</p>
+                                <p class="text-gray-600 mb-1">看点：马王堆汉墓文物 (辛追夫人遗体、T形帛画、素纱单衣等)。核心展览：“长沙马王堆汉墓陈列”、“湖南人——三湘历史文化陈列”。</p>
+                                <p class="text-gray-600 mb-1">开放时间：周二至周日9:00-17:00 (16:00/16:30止入)，周一闭馆。</p>
+                                <p class="text-gray-600 mb-1"><strong class="text-red-600">门票与预约：免费，但必须提前7天实名分时段预约 (官网/微信/支付宝)。名额有限！</strong></p>
+                                <p class="text-gray-600 mb-1">位置与交通：开福区东风路50号。地铁6号线至湘雅医院站，或公交至省博物馆站。</p>
+                                <p class="text-sm text-teal-600">💡 提示：马王堆文物是世界级文化遗产，强烈推荐。务必尽早预约！</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6 mt-6">
+                    <div class="card p-6">
+                        <h4 class="font-bold text-lg mb-2">🍽️ 午餐 (约13:00 - 14:00)：岳麓山下或大学城区域</h4>
+                        <p class="text-gray-600">推荐：岳麓山脚下或湖南大学周边 (如麓山南路)，多物美价廉餐馆和小吃店。</p>
+                    </div>
+                    <div class="card p-6">
+                        <h4 class="font-bold text-lg mb-2">⛰️ 下午 (约14:00 - 18:00)：登岳麓山，访岳麓书院</h4>
+                        <p class="text-gray-600 mb-3">岳麓山与岳麓书院联游，共计约3-4小时。</p>
+                        <div class="attraction-card-layout mb-4">
+                            <div class="attraction-image-container">
+                                 <img src="https://th.bing.com/th/id/OIP.vjx9_tKTpKv83YcixGVLBwHaFj?cb=iwc2&rs=1&pid=ImgDetMain" alt="岳麓山爱晚亭" class="attraction-image">
+                            </div>
+                            <div class="attraction-details">
+                                <p><strong class="text-orange-600">岳麓山 (Yuèlù Shān)</strong></p>
+                                <p class="text-sm text-gray-500 ml-4 mb-1">看点：爱晚亭、麓山寺、云麓宫、登高望远。文化名山。</p>
+                                <p class="text-sm text-gray-500 ml-4 mb-1">开放时间：公园主体开放，观光车约9:00-17:00，索道日间运营 (部分季节可能夜间)。</p>
+                                <p class="text-sm text-gray-500 ml-4 mb-1">门票与预约：免费入山。观光车 (单程20元，双程30元)、索道 (上50元，下40元，双程80元)另付费。<strong>强烈建议提前预约入山名额。</strong></p>
+                                <p class="text-sm text-gray-500 ml-4">交通：地铁2/4号线至溁湾镇站 (东门)，或4号线至湖南大学站 (南门)。</p>
+                            </div>
+                        </div>
+                         <div class="attraction-card-layout">
+                            <div class="attraction-image-container">
+                                <img src="https://th.bing.com/th/id/OIP.odJ2KFrI3adR4tcMVfziowHaE9?cb=iwc2&rs=1&pid=ImgDetMain" alt="岳麓书院" class="attraction-image">
+                            </div>
+                            <div class="attraction-details">
+                                <p><strong class="text-orange-600">岳麓书院 (Yuèlù Shūyuàn)</strong> (位于岳麓山内，建议1-1.5小时)</p>
+                                <p class="text-sm text-gray-500 ml-4 mb-1">看点：中国古代四大书院之一，千年历史，古建筑群，学术氛围。</p>
+                                <p class="text-sm text-gray-500 ml-4 mb-1">开放时间：5-10月约7:30-18:00 (17:45止入)。</p>
+                                <p class="text-sm text-gray-500 ml-4">门票：约40元/人。需预约。</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="card p-6">
+                        <div class="attraction-card-layout">
+                            <div class="attraction-image-container">
+                                <img src="https://tr-osdcp.qunarzz.com/tr-osd-tr-space/img/2729f3982bee9c4e145c81b2be37114b.jpg_r_480x360x95_1ac22606.jpg" alt="后湖艺术园" class="attraction-image">
+                            </div>
+                            <div class="attraction-details">
+                                <h4 class="font-bold text-lg mb-2">🎨 傍晚 (约18:00后，若时间充裕)：后湖艺术园</h4>
+                                <p class="text-gray-600 mb-1">特色：文化艺术街区，艺术工作室、画廊、咖啡馆、公共艺术装置 (麦垛空间、月艺艺术空间)。D区多网红打卡点。</p>
+                                <p class="text-gray-600 mb-1">开放时间：园区开放，各店铺营业时间不一。</p>
+                                <p class="text-gray-600 mb-1">门票：免费。</p>
+                                <p class="text-gray-600">交通：地铁4号线至阜埠河站，步行约8分钟。近岳麓山/湖大。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card p-6 mb-6 flex flex-col items-center">
+                <h3 class="text-lg font-bold text-teal-700 mb-2">路线地图</h3>
+                <div class="flex flex-col sm:flex-row w-full gap-4 justify-center items-center">
+                    <img src="https://img1.baidu.com/it/u=4059307899,2719691190&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1069" alt="长沙行程路线地图1" class="w-full sm:w-1/2 max-w-xl rounded-lg shadow-md">
+                    <img src="https://qcloud.dpfile.com/pc/bSwj_jjA8IE2pwOvRRESyrjIs7zA6FrN1HBW_n7fN7oStlc3tb2D46EPS2wRcTFF.jpg" alt="长沙行程路线地图2" class="w-full sm:w-1/2 max-w-xl rounded-lg shadow-md">
+                </div>
+                <p class="text-gray-500 mt-2 text-sm">（示意图，实际路线请以导航为准）</p>
+            </div>
+        </section>
+
+        <section id="food" class="content-section">
+            <h2 class="text-2xl font-bold mb-6 text-orange-600">🍜 美食寻味</h2>
+            <p class="mb-6 text-gray-600">长沙的美食是其灵魂所在！</p>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-teal-700">臭豆腐 (Chòu Dòufu)</h3>
+                    <p class="text-gray-600 mb-2">描述：长沙标志小吃，外酥里嫩，浇特制调料，风味独特。</p>
+                    <p class="font-medium text-gray-700">推荐店铺：</p>
+                    <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
+                        <li>黑色经典臭豆腐 (多家分店，坡子街/黄兴路步行街店人气旺)</li>
+                        <li>武爹臭豆腐 (坡子街上味舫128号，本地老字号)</li>
+                    </ul>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-teal-700">糖油粑粑 (Táng Yóu Bābā)</h3>
+                    <p class="text-gray-600 mb-2">描述：糯米粉制，糖油煎炸，金黄诱人，外脆内糯，香甜可口。</p>
+                    <p class="font-medium text-gray-700">推荐店铺：</p>
+                    <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
+                        <li>李公庙糖油粑粑 (黄兴中路百联东方对面巷内)</li>
+                        <li>南门口金记糖油坨坨 (南门口)</li>
+                        <li>老头子糖油粑粑 (湖南大学美食街)</li>
+                    </ul>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-teal-700">口味虾 (Kǒuwèi Xiā - 麻辣小龙虾)</h3>
+                    <p class="text-gray-600 mb-2">描述：长沙夏季夜宵霸主，麻辣鲜香，回味无穷。</p>
+                    <p class="font-medium text-gray-700">推荐店铺：</p>
+                    <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
+                        <li>文和友 (海信广场店，网红，可能需长时排队)</li>
+                        <li>虾小龙老长沙龙虾馆 (五一广场/解放西路店)</li>
+                        <li>聚味瞿记·龙虾堂 / 靓虾二哥小龙虾馆 (大众点评推荐)</li>
+                    </ul>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-teal-700">长沙米粉 (Chángshā Mǐfěn)</h3>
+                    <p class="text-gray-600 mb-2">描述：长沙人日常早餐首选，爽滑米粉配浓郁骨汤和各色码子。</p>
+                    <p class="font-medium text-gray-700">推荐店铺：</p>
+                    <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
+                        <li>杨裕兴 (百年老字号)</li>
+                        <li>和记粉馆 (老牌粉馆)</li>
+                        <li>公交新村粉店 (本地口碑老店，五一广场附近有分店)</li>
+                        <li>夏记粉店 (大众点评“必吃榜”推荐)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="tips" class="content-section">
+            <h2 class="text-2xl font-bold mb-6 text-orange-600">💡 出行锦囊</h2>
+            <p class="mb-6 text-gray-600">了解这些实用信息，让您的长沙之旅更加顺畅愉快！</p>
+            <div class="space-y-4">
+                <div>
+                    <button class="accordion-button w-full text-left font-semibold p-4 bg-amber-200 hover:bg-amber-300 rounded-md focus:outline-none flex justify-between items-center">
+                        <span>☀️ 长沙避雷指南</span>
+                        <span class="plus-minus text-xl transform transition-transform duration-300">+</span>
+                    </button>
+                    <div class="accordion-content bg-white p-4 rounded-b-md border border-t-0 border-amber-300">
+                        <p>◆1、去橘子洲一定要提前预约，看好天气，大雨天气会关闭。建议乘观光小火车(往返共40)，不然腿会走废!<br>◆2、谢子龙影像艺术馆没必要买票去二三楼看，一楼拍照打卡也很出片，不知道怎么拍可以请保安叔叔拍一下<br>◆3、不要去太平街买手串，串出来一副珠子要几百!<br>◆4、步行街拉你拍照奇装异服的人别理，血泪教训，拍完就和你要钱!!拍他也要钱!<br>◆5、不要打车去橘子洲，一般都有交通管制不能开进去，要走好长一段路，坐地铁到橘子洲站，步行个几分钟就能到。
+<br>◆6、五一广场里卖爪爪和水果捞的别买，称出来的价格能吓你一跳!<br>◆7、茶颜薅羊毛攻略:提前注册好会员，第一天到门店买一杯，生
+日日期填第二天的，第二天券到账
+<br>◆8、摩的师傅揽客一定要拒绝，很多宰外地游客的，短距离价格比打车还贵，不仅开得快还喜欢逆行非常不安全
+◆9、吃小吃可以首选河西大学城或者林科大附近<br>
+◆10、没必要去马栏山蹲明星，基本都在室内见不到，位置很偏<br>
+◆11、大部分出租车在人流量大的地方会坐地起价乱收费，最好选正规平台网约车<br>
+◆12、不能特别吃辣不要去壹盏灯，会辣鼠！<br>
+◆13、不要盯着一家茶颜排，避开人流量大的主干道，市中心隔几百米就有一家<br>
+◆14、省博物馆、谢子龙艺术馆、李自健美术馆都是逢周一闭馆<br>
+◆15、去解放西感受酒吧文化一定要结伴同行，晚上鱼龙混杂要注意安全<br>
+◆16、岳麓书院学生证可以半价，记得带上证件！岳麓山想坐滑道的，在17：00前去，过点就停运！<br>
+◆17、机场抵达的小伙伴可乘坐悬浮列车转地铁，打车要打正规平台网约车<br>
+◆18、晚高峰最好坐地铁出行，不然打车堵到怀疑人生</p>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="accordion-button w-full text-left font-semibold p-4 bg-amber-200 hover:bg-amber-300 rounded-md focus:outline-none flex justify-between items-center">
+                        <span>🚇 玩转长沙：交通出行指南</span>
+                        <span class="plus-minus text-xl transform transition-transform duration-300">+</span>
+                    </button>
+                    <div class="accordion-content bg-white p-4 rounded-b-md border border-t-0 border-amber-300">
+                        <p class="mb-2">长沙公共交通便利，地铁是主要方式。可通过微信/支付宝“城市通”小程序或“湘行一卡通”App扫码乘车。</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full table">
+                                <thead>
+                                    <tr><th>交通方式</th><th>支付方式</th><th>主要线路/提示</th><th>大致费用参考</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>地铁</td><td>“城市通”小程序, 湘行一卡通App等</td><td>本行程主要涉及1、2号线</td><td>起步价2元/6公里</td></tr>
+                                    <tr><td>出租车/网约车</td><td>现金, 支付宝, 微信支付</td><td>按表计价，高峰期可能加价或等待</td><td>例：3.3公里约24元</td></tr>
+                                    <tr><td>公交车</td><td>“城市通”小程序, 湘行一卡通App, 投币</td><td>线路众多，但可能较慢</td><td>通常2元</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                         <p class="mt-4 text-sm text-teal-600">💡 提示：提前设置好乘车码能节省时间。</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <button class="accordion-button w-full text-left font-semibold p-4 bg-amber-200 hover:bg-amber-300 rounded-md focus:outline-none flex justify-between items-center">
+                        <span>🎟️ 景点预约提示：务必提前规划！</span>
+                         <span class="plus-minus text-xl transform transition-transform duration-300">+</span>
+                    </button>
+                    <div class="accordion-content bg-white p-4 rounded-b-md border border-t-0 border-amber-300">
+                        <p>长沙许多主要景点 (尤其湖南博物院、岳麓山、岳麓书院) 需提前通过官方微信公众号或小程序网上预约，通常提前3-7天。名额有限，不提前预约很可能无法入园。</p>
+                        <ul class="list-disc list-inside text-sm text-gray-500 ml-4 mt-2">
+                            <li>岳麓山、橘子洲：“岳麓山橘子洲旅游区”官微，提前3天(含当天)。</li>
+                            <li>湖南博物院：官网、官微服务号、支付宝小程序，提前7天(不含当天)。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="accordion-button w-full text-left font-semibold p-4 bg-amber-200 hover:bg-amber-300 rounded-md focus:outline-none flex justify-between items-center">
+                        <span>⚠️ 温馨提示：长沙之行注意事项</span>
+                         <span class="plus-minus text-xl transform transition-transform duration-300">+</span>
+                    </button>
+                    <div class="accordion-content bg-white p-4 rounded-b-md border border-t-0 border-amber-300">
+                        <ul class="list-disc list-inside space-y-1 text-gray-600">
+                            <li><strong>安全第一：</strong>人多处注意财物。</li>
+                            <li><strong>理性消费：</strong>景点购物用餐留意价格。</li>
+                            <li><strong>尊重习俗：</strong>参观文化场所遵守规定。</li>
+                            <li><strong>语言沟通：</strong>普通话为主。</li>
+                            <li><strong>网络与支付：</strong>移动支付普及，提前绑定银行卡。</li>
+                            <li><strong>天气与健康：</strong>五月底可能炎热潮湿，防暑降温，多补水。长沙口味偏辣，不习惯可告知服务员。</li>
+                            <li><strong>绿色出行：</strong>尽量选择公共交通。</li>
+                            <li><strong>保持灵活：</strong>享受旅途中的不期而遇。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<section id="music" class="content-section">
+  <h2 class="text-2xl font-bold mb-6 text-orange-600">🎵 音乐节</h2>
+  <!-- 组长介绍开始 -->
+  <div class="card p-6 w-full mb-6 flex flex-col sm:flex-row items-center">
+    <img src="https://gips1.baidu.com/it/u=552568746,4285132912&fm=3074&app=3074&f=JPEG" alt="组长yoyo" class="w-32 h-32 rounded-full object-cover mb-4 sm:mb-0 sm:mr-6 border-4 border-orange-200">
+    <div>
+      <h3 class="text-lg font-bold text-teal-700 mb-2">组长介绍：yoyo（猎豹版）</h3>
+      <p class="text-gray-700">yoyo，音乐节资深玩家，热爱音乐与旅行，带领大家畅玩音乐节，体验星城独特魅力！如有疑问欢迎随时咨询组长yoyo～</p>
+    </div>
+  </div>
+  <!-- 组长介绍结束 -->
+  <div class="card p-6 w-full">
+    <h3 class="text-xl font-semibold mb-4 text-teal-700">大家玩的开心</h3>
+    <div class="flex w-full gap-0">
+      <img src="https://img2.baidu.com/it/u=2089073817,3632038887&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1066" 
+           alt="音乐节现场" 
+           class="w-1/2 h-auto object-cover">
+      <img src="https://q6.itc.cn/q_70/images03/20250425/7ad487652a3448ac951d210bf561b1a4.jpeg" 
+           alt="音乐节现场" 
+           class="w-1/2 h-auto object-cover">
+    </div>
+  </div>
+</section>
+
+
+
+
+
+    </main>
+
+    <footer class="text-center p-6 mt-8 bg-amber-100 text-gray-600 text-sm">
+        <p>&copy; 2025 长沙旅游交互指南。祝您旅途愉快！</p>
+    </footer>
+
+    <script>
+        let currentTab = 'overview';
+        let currentDayDetail = 'day1Detail';
+        let currentDay2Option = 'juzizhou';
+        let timeAllocationChartInstance = null;
+
+        function showTab(tabId) {
+            document.getElementById(currentTab).classList.remove('active');
+            document.querySelector(`.tab-button[onclick="showTab('${currentTab}')"]`).classList.remove('active', 'bg-orange-500', 'text-white');
+            document.querySelector(`.tab-button[onclick="showTab('${currentTab}')"]`).classList.add('text-gray-700');
+
+
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active', 'bg-orange-500', 'text-white');
+            document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.remove('text-gray-700');
+            currentTab = tabId;
+            window.scrollTo(0, 0);
+
+            if (tabId === 'overview' && !timeAllocationChartInstance) {
+                renderTimeAllocationChart();
+            }
+        }
+
+        function showDayDetail(detailId, buttonElement) {
+            document.getElementById(currentDayDetail).style.display = 'none';
+            document.getElementById(detailId).style.display = 'block';
+            currentDayDetail = detailId;
+
+            const buttons = document.querySelectorAll('#daily > .flex > button'); // More specific selector
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'text-white', 'ring-orange-400', 'hover:bg-orange-600');
+                btn.classList.add('bg-teal-600', 'text-white', 'hover:bg-teal-700', 'focus:ring-teal-400');
+            });
+            buttonElement.classList.remove('bg-teal-600', 'hover:bg-teal-700', 'focus:ring-teal-400');
+            buttonElement.classList.add('bg-orange-500', 'text-white', 'hover:bg-orange-600', 'focus:ring-orange-400');
+        }
+        
+        function showDay2Option(optionId, buttonElement) {
+            document.getElementById(currentDay2Option).style.display = 'none';
+            document.getElementById(currentDay2Option).classList.remove('active');
+            
+            const optionButtons = document.querySelectorAll('.day2-option-btn');
+            optionButtons.forEach(btn => {
+                btn.classList.remove('active', 'bg-orange-500');
+                btn.classList.add('bg-teal-600');
+            });
+
+            document.getElementById(optionId).style.display = 'block';
+            document.getElementById(optionId).classList.add('active');
+            buttonElement.classList.add('active', 'bg-orange-500');
+            buttonElement.classList.remove('bg-teal-600');
+            currentDay2Option = optionId;
+        }
+
+
+        document.querySelectorAll('.accordion-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const currentlyActive = document.querySelector('.accordion-button.active');
+                if (currentlyActive && currentlyActive !== button) {
+                    currentlyActive.classList.remove('active');
+                    currentlyActive.querySelector('.plus-minus').textContent = '+';
+                    currentlyActive.querySelector('.plus-minus').classList.remove('rotate-45');
+                }
+
+                button.classList.toggle('active');
+                const plusMinus = button.querySelector('.plus-minus');
+                if (button.classList.contains('active')) {
+                    plusMinus.textContent = '-';
+                    plusMinus.classList.add('rotate-45');
+                } else {
+                    plusMinus.textContent = '+';
+                    plusMinus.classList.remove('rotate-45');
+                }
+            });
+        });
+
+        function renderTimeAllocationChart() {
+            const ctx = document.getElementById('timeAllocationChart').getContext('2d');
+            if (timeAllocationChartInstance) {
+                timeAllocationChartInstance.destroy();
+            }
+            timeAllocationChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['第一天活动时长 (约6小时)', '第二天活动时长 (约9-10小时)'],
+                    datasets: [{
+                        label: '预计活动小时数',
+                        data: [6, 9.5],
+                        backgroundColor: [
+                            'rgba(251, 146, 60, 0.7)', 
+                            'rgba(20, 184, 166, 0.7)' 
+                        ],
+                        borderColor: [
+                            'rgba(251, 146, 60, 1)',
+                            'rgba(20, 184, 166, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '小时 (Hours)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + ' 小时';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            showTab('overview'); 
+            showDayDetail('day1Detail', document.getElementById('day1Btn')); 
+            showDay2Option('juzizhou', document.querySelector('.day2-option-btn[onclick*="juzizhou"]')); // Ensure Day 2 option default is set
+            const firstAccordionButton = document.querySelector('.accordion-button');
+            if (firstAccordionButton) {
+                 firstAccordionButton.click(); 
+            }
+        });
+
+    </script>
+</body>
+</html>
