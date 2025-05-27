@@ -149,6 +149,13 @@
                     <canvas id="timeAllocationChart"></canvas>
                 </div>
             </div>
+            <div class="card p-6 mb-6 flex flex-col items-center">
+                <h3 class="text-lg font-bold text-teal-700 mb-2">路线地图</h3>
+                <div class="flex flex-col sm:flex-row w-full gap-4 justify-center items-center">
+                    <img src="https://img1.baidu.com/it/u=3567566618,1250093635&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=917" alt="长沙行程路线地图1" class="w-full sm:w-1/2 max-w-xl rounded-lg shadow-md">
+                </div>
+                <p class="text-gray-500 mt-2 text-sm">（示意图，实际路线请以导航为准）</p>
+            </div>
         </section>
 
         <section id="daily" class="content-section">
@@ -506,17 +513,17 @@
    <br> <p class="text-lg text-gray-700 text-center max-w-lg animate-fade-in animate-float typing-text" id="typingText">yoyo，音乐节资深玩家，热爱音乐与旅行，带领大家畅玩音乐节，体验星城独特魅力！如有疑问欢迎随时咨询组长yoyo～</p>
   </div>
   <!-- 组长介绍结束 -->
-  <div class="card p-6 w-full">
-    <h3 class="text-xl font-semibold mb-4 text-teal-700">大家玩的开心</h3>
-    <div class="flex w-full gap-0">
-      <img src="https://img2.baidu.com/it/u=2089073817,3632038887&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1066" 
-           alt="音乐节现场" 
-           class="w-1/2 h-auto object-cover">
-      <img src="https://q6.itc.cn/q_70/images03/20250425/7ad487652a3448ac951d210bf561b1a4.jpeg" 
-           alt="音乐节现场" 
-           class="w-1/2 h-auto object-cover">
+  <div class="flex flex-col items-center justify-center py-8 animate-fade-in">
+    <div class="flex space-x-4 mt-4">
+      <button id="musicDay1Btn" class="bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400">第一天</button>
+      <button id="musicDay2Btn" class="bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400">第二天</button>
+    </div>
+    <div class="flex space-x-4 mt-4">
+      <img id="day1Img" src="day1.jpg" alt="第一天" class="rounded shadow-lg">
+      <img id="day2Img" src="day2.jpg" alt="第二天" class="rounded shadow-lg hidden">
     </div>
   </div>
+  
 </section>
 
 <section id="thanks" class="content-section">
@@ -548,10 +555,10 @@
                 <img src="artist3.jpg" alt="艺人统筹3" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-lg border-4 border-orange-100 mb-1 animate-bounce-slow animate-glow animate-rotate-yoyo">
                 <br>  <span class="text-base font-medium text-teal-700 animate-float">小C</span>
             </div>
-            <div class="flex flex-col items-center">
+           <!-- <div class="flex flex-col items-center">
                 <img src="artist4.jpg" alt="艺人统筹4" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-lg border-4 border-orange-100 mb-1 animate-bounce-slow animate-glow animate-rotate-yoyo">
                 <br>  <span class="text-base font-medium text-teal-700 animate-float">小D</span>
-            </div>
+            </div>-->
         </div>
         <p class="text-gray-700 text-center max-w-xl animate-fade-in animate-float">感谢艺统老师的专业协调与辛勤努力，为活动顺利举办保驾护航！</p>
     </div><br>
@@ -706,7 +713,20 @@
                 }
             });
         }
-        
+        const musicDay1Btn = document.getElementById("musicDay1Btn");
+  const musicDay2Btn = document.getElementById("musicDay2Btn");
+  const day1Img = document.getElementById("day1Img");
+  const day2Img = document.getElementById("day2Img");
+
+  musicDay1Btn.addEventListener("click", () => {
+    day1Img.classList.remove("hidden");
+    day2Img.classList.add("hidden");
+  });
+
+  musicDay2Btn.addEventListener("click", () => {
+    day2Img.classList.remove("hidden");
+    day1Img.classList.add("hidden");
+  });
         document.addEventListener('DOMContentLoaded', () => {
             showTab('overview'); 
             showDayDetail('day1Detail', document.getElementById('day1Btn')); 
@@ -720,3 +740,6 @@
     </script>
 </body>
 </html>
+
+
+
