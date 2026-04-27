@@ -3,744 +3,800 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>长沙🍓艺接游</title>
+    <title>东莞🍓周边游 | 特种兵全攻略</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Visualization & Content Choices:
-        - Itinerary Overview: HTML/CSS summary cards. Chart.js bar chart for estimated daily activity time. Goal: Quick summary & time visualization. Interaction: Tab navigation.
-        - Detailed Days: Attraction Cards (HTML/CSS/Images) with dynamic show/hide for details & Day 2 choice (JS). Goal: Inform on specifics. Interaction: Selection, toggles.
-        - Transport Table: HTML table. Goal: Compare options.
-        - Food Guide: Food Cards (HTML/CSS). Goal: Showcase dishes.
-        - Travel Tips: Accordion (HTML/CSS/JS). Goal: Practical advice.
-        - Justification: Interactive elements, images, and visual summaries improve engagement and comprehension of the travel plan. Structure supports non-linear exploration.
-        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #FFF7ED; color: #374151; }
-        .tab-button { transition: all 0.3s ease; }
-        .tab-button.active { background-color: #F97316; color: white; }
-        .tab-button:not(.active):hover { background-color: #FFEDD5; }
-        .content-section { display: none; }
-        .content-section.active { display: block; }
-        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .accordion-button.active + .accordion-content { max-height: 1000px; /* Adjust as needed */ }
-        .card { background-color: #FFFAF0; border: 1px solid #FFEDD5; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
-        @media (min-width: 768px) { .chart-container { height: 350px; } }
-        .table th, .table td { border: 1px solid #FED7AA; padding: 0.5rem; text-align: left; }
-        .table th { background-color: #FFEDD5; }
-        .attraction-image { width: 100%; height: 200px; object-fit: cover; border-radius: 0.375rem; margin-bottom: 0.75rem; }
-        @media (min-width: 640px) {
-            .attraction-card-layout { display: flex; align-items: flex-start; }
-            .attraction-image-container { flex-shrink: 0; width: 33.333333%; margin-right: 1rem; margin-bottom: 0; }
-            .attraction-image { height: auto; max-height:180px;}
-            .attraction-details { flex-grow: 1; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #fdfcfb;
+            color: #262626;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .tab-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-bottom: 4px solid transparent; }
+        .tab-btn.active {
+            border-bottom-color: #f43f5e;
+            color: #f43f5e;
+            font-weight: 900;
+            transform: translateY(-1px);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(244, 63, 94, 0.1);
+        }
+
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 10px rgba(244, 63, 94, 0.1); } 50% { box-shadow: 0 0 25px rgba(244, 63, 94, 0.3); } }
+        @keyframes rotate-yoyo { 0% { transform: rotate(-3deg); } 100% { transform: rotate(3deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+        .animate-fade-in { animation: fade-in 0.8s ease-out forwards; }
+        .animate-slide-in { animation: slide-in 0.6s ease-out forwards; }
+        .animate-bounce-slow { animation: bounce-slow 3s infinite ease-in-out; }
+        .animate-glow { animation: glow 2s infinite ease-in-out; }
+        .animate-rotate-yoyo { animation: rotate-yoyo 2s infinite alternate ease-in-out; }
+        .animate-float { animation: float 4s infinite ease-in-out; }
+
+        .music-tab-btn.active {
+            background-color: #f43f5e;
+            border-color: #f43f5e;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(244, 63, 94, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .music-tab-btn {
+            min-height: 48px; /* 确保触控区域 > 44px */
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-center: center;
+        }
+
+        /* 统一的日程网格体系 */
+        .music-grid {
+            display: grid;
+            grid-template-columns: 90px 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .music-grid {
+                grid-template-columns: 140px 1fr 1fr;
+                gap: 24px;
+            }
+        }
+
+        /* 移动端优化：375px 以下微调 */
+        @media (max-width: 375px) {
+            .music-grid {
+                grid-template-columns: 75px 1fr 1fr;
+                gap: 8px;
+            }
+            .music-card {
+                padding: 12px !important;
+            }
+            .artist-name {
+                font-size: 11px;
+            }
+        }
+
+        .artist-name {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
         }
     </style>
 </head>
-<body class="bg-amber-50 text-gray-700">
+<body class="antialiased min-h-screen flex flex-col">
 
-    <header class="bg-orange-500 text-white p-6 shadow-md">
-        <h1 class="text-3xl font-bold text-center">长沙🍓艺接游</h1>
+<header class="w-full bg-white/90 sticky top-0 z-50 border-b border-rose-100 shadow-sm backdrop-blur-md">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-3xl">🍓</span>
+                <h1 class="text-xl md:text-2xl font-black text-rose-600">东莞周边游</h1>
+            </div>
+            <div class="flex items-center gap-1 text-[10px] md:text-xs font-bold text-rose-300 uppercase tracking-tighter">
+                <span>Fast & Precise</span>
+                <span class="mx-1">•</span>
+                <span>Holiday Edition 2026</span>
+            </div>
+        </div>
+        <nav class="max-w-6xl mx-auto px-2 flex gap-4 overflow-x-auto hide-scrollbar">
+            <button onclick="switchTab('day1')" id="btn-day1" class="tab-btn active px-3 py-3 text-sm whitespace-nowrap">5月1日：速通培训线</button>
+            <button onclick="switchTab('music')" id="btn-music" class="tab-btn px-3 py-3 text-sm whitespace-nowrap">5月2-4日：草莓音乐节 🎸</button>
+            <button onclick="switchTab('day5')" id="btn-day5" class="tab-btn px-3 py-3 text-sm whitespace-nowrap">5月5日：地铁特种兵</button>
+            <button onclick="switchTab('analytics')" id="btn-analytics" class="tab-btn px-3 py-3 text-sm whitespace-nowrap">📊 效率看板</button>
+            <button onclick="switchTab('thanks')" id="btn-thanks" class="tab-btn px-3 py-3 text-sm whitespace-nowrap">✨ 松山湖站</button>
+            <a href="changsha.html" class="tab-btn px-3 py-3 text-sm whitespace-nowrap hover:border-rose-400 hover:text-rose-600 transition-all">25长沙草莓</a>
+        </nav>
     </header>
 
-    <nav class="bg-amber-100 p-4 sticky top-0 z-50 shadow">
-        <div class="container mx-auto flex flex-wrap justify-center space-x-2 sm:space-x-4">
-            <button class="tab-button active text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('overview')">🗓️ 行程概览</button>
-            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('daily')">🗺️ 每日详解</button>
-            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('food')">🍜 美食寻味</button>
-            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('tips')">💡 出行锦囊</button>
-            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('music')">🎵 音乐节</button>
-            <button class="tab-button text-sm sm:text-base py-2 px-3 sm:px-4 rounded-md font-semibold" onclick="showTab('thanks')">✨ 特别鸣谢</button>
-        </div>
-    </nav>
+    <main class="w-full max-w-6xl mx-auto p-4 md:p-8 flex-1">
 
-    <!-- 在 main 内合适位置添加如下内容（建议放在其它 section 后面） -->
-    <style>
-    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slide-in { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
-    @keyframes rotate-yoyo { 0% { transform: rotateY(0deg);} 100% { transform: rotateY(360deg);} }
-    @keyframes glow { 0%,100% { box-shadow: 0 0 30px 10px #fbbf24, 0 0 60px 20px #f59e42; filter: brightness(1.1);} 50% { box-shadow: 0 0 60px 30px #f59e42, 0 0 90px 40px #fbbf24; filter: brightness(1.3);} }
-    @keyframes float { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-18px);} }
-    @keyframes pop-in { 0% { transform: scale(0.7) rotate(-10deg); opacity: 0;} 80% { transform: scale(1.1) rotate(3deg); opacity: 1;} 100% { transform: scale(1) rotate(0); opacity: 1;} }
-    @keyframes bg-animate { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
-    @keyframes wave { 0%,100% { transform: translateY(0);} 20% { transform: translateY(-8px);} 40% { transform: translateY(6px);} 60% { transform: translateY(-4px);} 80% { transform: translateY(4px);} }
-    .bg-animate {
-      background: linear-gradient(270deg, #fbbf24, #f59e42, #fbbf24, #f59e42);
-      background-size: 400% 400%;
-      animation: bg-animate 8s ease-in-out infinite alternate;
-    }
-    .avatar-glow {
-      position: relative;
-      z-index: 1;
-    }
-    .avatar-glow-canvas {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%,-50%);
-      pointer-events: none;
-      z-index: 2;
-    }
-    .animate-fade-in { animation: fade-in 1.2s cubic-bezier(.4,2,.6,1); }
-    .animate-slide-in { animation: slide-in 1s cubic-bezier(.4,2,.6,1) both; }
-    .animate-bounce-slow { animation: bounce-slow 2.5s infinite; }
-    .animate-rotate-yoyo { animation: rotate-yoyo 2.5s linear infinite; }
-    .animate-glow { animation: glow 2.2s ease-in-out infinite alternate; }
-    .animate-float { animation: float 2.8s ease-in-out infinite; }
-    .animate-pop-in { animation: pop-in 1.1s cubic-bezier(.4,2,.6,1); }
-    .music-leader-gradient {
-      background: linear-gradient(90deg, #fbbf24 0%, #f59e42 50%, #fbbf24 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .wave {
-      display: inline-block;
-      animation: wave 1.5s infinite;
-    }
-    .typing-text {
-      border-right: 2px solid #f59e42;
-      white-space: normal;
-      word-break: break-all;
-      overflow: hidden;
-      display: inline-block;
-      font-family: inherit;
-      font-size: inherit;
-      animation: typing 3.5s steps(30, end) 1s 1 normal both, blink-caret 0.75s step-end infinite;
-      max-width: 90vw;
-    }
-    @keyframes typing { from { width: 0; } to { width: 100%; } }
-    @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: #f59e42; } }
-    </style>
- 
-
-    <!-- 在 <style> 标签内添加动画样式 -->
-    <style>
-    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slide-in { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
-    .animate-fade-in { animation: fade-in 1.2s ease; }
-    .animate-slide-in { animation: slide-in 1s cubic-bezier(.4,2,.6,1) both; }
-    .animate-bounce-slow { animation: bounce-slow 2.5s infinite; }
-    </style>
-    <main class="container mx-auto p-4 sm:p-6">
-        <section id="overview" class="content-section active">
-            <h2 class="text-2xl font-bold mb-6 text-orange-600">🗓️ 行程概览</h2>
-            <p class="mb-6 text-gray-600">欢迎来到长沙！这份1.5日的行程旨在让您高效体验长沙的核心魅力。以下是您的行程亮点，助您快速了解整体安排。</p>
-            <div class="grid md:grid-cols-2 gap-6 mb-8">
-                <div class="card p-6">
-                    <h3 class="text-xl font-semibold mb-3 text-teal-700">第一天 (5月29日): 都市霓虹与湘江夜色</h3>
-                    <p class="text-gray-600 mb-2">培训结束后，从会展中心出发，直奔长沙的心脏地带——五一广场。傍晚时分，您将打卡IFS国金中心的网红雕塑，漫步于繁华的黄兴路步行街，品尝地道的南门口小吃，最后在杜甫江阁欣赏迷人的湘江夜景。</p>
-                    <p class="text-sm text-gray-500">主要活动区域：五一商圈、湘江沿岸</p>
-                    <p class="text-sm text-gray-500">预计活动时长：约6小时 (下午4:30 - 晚上10:30+)</p>
-                </div>
-                <div class="card p-6">
-                    <h3 class="text-xl font-semibold mb-3 text-teal-700">第二天 (5月30日): 历史、文化与艺术的交融</h3>
-                    <p class="text-gray-600 mb-2">今日您将深度体验长沙的文脉。上午可在橘子洲头缅怀伟人，或在湖南省博物馆探寻马王堆的千年秘密（二选一）。午后登临岳麓山，拜访千年学府岳麓书院。若时间充裕，傍晚还可前往后湖艺术园感受现代艺术的熏陶。</p>
-                    <p class="text-sm text-gray-500">主要活动区域：橘子洲/省博、岳麓山、后湖</p>
-                    <p class="text-sm text-gray-500">预计活动时长：约9-10小时 (全天)</p>
-                </div>
-            </div>
-            <div class="card p-6">
-                <h3 class="text-xl font-semibold mb-4 text-teal-700">每日活动时间参考</h3>
-                 <p class="mb-4 text-gray-600">下图大致展示了每日主要游玩时间的分配，具体时长会因您的游览节奏和选择而有所不同。</p>
-                <div class="chart-container">
-                    <canvas id="timeAllocationChart"></canvas>
-                </div>
-            </div>
-            <div class="card p-6 mb-6 flex flex-col items-center">
-                <h3 class="text-lg font-bold text-teal-700 mb-2">路线地图</h3>
-                <div class="flex flex-col sm:flex-row w-full gap-4 justify-center items-center">
-                    <img src="https://img1.baidu.com/it/u=3567566618,1250093635&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=917" alt="长沙行程路线地图1" class="w-full sm:w-1/2 max-w-xl rounded-lg shadow-md">
-                </div>
-                <p class="text-gray-500 mt-2 text-sm">（示意图，实际路线请以导航为准）</p>
-            </div>
-        </section>
-
-        <section id="daily" class="content-section">
-            <h2 class="text-2xl font-bold mb-6 text-orange-600">🗺️ 每日详解</h2>
-           
-            <!-- 下面是原有的每日详解内容 -->
-            <p class="mb-6 text-gray-600">请注意，部分热门景点需要提前预约。<br>学生证半价专区：橘子洲小火车、杜甫江阁、岳麓书院、古开福寺</p>
-            <div class="mb-6 flex justify-center space-x-4">
-                <button id="day1Btn" class="py-2 px-4 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400" onclick="showDayDetail('day1Detail', this)">第一天详情</button>
-                <button id="day2Btn" class="py-2 px-4 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400" onclick="showDayDetail('day2Detail', this)">第二天详情</button>
-            </div>
-
-            <div id="day1Detail" class="day-detail-content">
-                <h3 class="text-xl font-semibold mb-4 text-teal-700">第一天：5月29日 —— 从会展中心到都市霓虹</h3>
-                <div class="space-y-6">
-                    <div class="card p-6">
-                        <div class="attraction-card-layout">
-                            <div class="attraction-image-container">
-                                <img src="https://img2.baidu.com/it/u=1866576221,2039502328&fm=253&fmt=auto&app=120&f=JPEG?w=667&h=500" alt="长沙国际会展中心" class="attraction-image">
-                            </div>
-                            <div class="attraction-details">
-                                <h4 class="font-bold text-lg mb-2">🕒 约下午4:30：培训结束</h4>
-                                <p class="text-gray-600">地点：长沙国际会展中心</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card p-6">
-                        <h4 class="font-bold text-lg mb-2">🚗 下午4:30 - 傍晚5:45：前往五一广场区域</h4>
-                        <p class="text-gray-600 mb-1"><strong class="text-orange-600">地铁 (推荐):</strong> 从光达站 (地铁2号线) 至五一广场站。</p>
-                        <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
-                            <li>线路：2号线，12个站点 (光达 → 五一广场)。</li>
-                            <li>耗时：约35分钟 (含进出站及等候)。</li>
-                            <li>票价：预计4-5元。</li>
-                        </ul>
-                        <p class="text-gray-600 mt-2 mb-1"><strong class="text-orange-600">滴滴:</strong></p>
-                        <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
-                            <li>距离与耗时：约17-18公里，32分钟 (高峰期可能更长)。</li>
-                            <li>费用：预计30元。</li>
-                        </ul>
-                        <p class="mt-2 text-sm text-teal-600">💡 提示：下午高峰期，地铁更高效且经济。</p>
-                    </div>
-                    <div class="card p-6">
-                        <h4 class="font-bold text-lg mb-2">🌃 傍晚5:45 - 晚上10:30+：夜游核心商圈</h4>
-                        <p class="text-gray-600 mb-3">此段行程紧凑，以体验都市活力和夜景为主。</p>
-                        <div class="space-y-4">
-                            <div class="attraction-card-layout">
-                                <div class="attraction-image-container">
-                                    <img src="https://th.bing.com/th/id/R.34d76cf11ac43ff55653ffde6094a758?rik=bIIgby0OhNX20A&pid=ImgRaw&r=0&sres=1&sresct=1" alt="IFS国金中心KAWS雕塑" class="attraction-image">
-                                </div>
-                                <div class="attraction-details">
-                                    <p><strong class="text-orange-600">A. 五一广场 & IFS国金中心</strong> (预计游览: 傍晚5:45 - 晚上7:00)</p>
-                                    <p class="text-sm text-gray-500 ml-4">看点：KAWS雕塑 (IFS 7楼楼顶，可能需排队)、繁华夜景。IFS商场约22:00关门。</p>
-                                </div>
-                            </div>
-                            <div class="attraction-card-layout">
-                                <div class="attraction-image-container">
-                                     <img src="https://img1.baidu.com/it/u=4060268186,1557132237&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1067" alt="黄兴路步行街" class="attraction-image">
-                                </div>
-                                <div class="attraction-details">
-                                    <p><strong class="text-orange-600">B. 黄兴路步行街</strong> (预计游览: 晚上7:00 - 晚上8:00)</p>
-                                    <p class="text-sm text-gray-500 ml-4">特色：热闹商业街，小吃遍布，霓虹闪烁。可品尝黑色经典臭豆腐。</p>
-                                </div>
-                            </div>
-                            <div class="attraction-card-layout">
-                                 <div class="attraction-image-container">
-                                    <img src="https://img.meituan.net/content/dc3e88ef1acc5750f7542892200cdf9d290774.webp" alt="南门口美食" class="attraction-image">
-                                </div>
-                                <div class="attraction-details">
-                                    <p><strong class="text-orange-600">C. 晚餐：南门口或五一广场周边</strong> (预计用餐: 晚上8:00 - 晚上9:00)</p>
-                                    <p class="text-sm text-gray-500 ml-4">南门口：地道小吃街 (老坛剁椒手撕鸡、金记糖油坨坨等)。五一广场周边：选择众多，文和友可能排队久。</p>
-                                </div>
-                            </div>
-                            <div class="attraction-card-layout">
-                                 <div class="attraction-image-container">
-                                    <img src="https://img.meituan.net/content/52e63c8c8f176085d5d51fc808cdddb923386.webp" alt="杜甫江阁" class="attraction-image">
-                                </div>
-                                <div class="attraction-details">
-                                    <p><strong class="text-orange-600">D. 杜甫江阁</strong> (预计游览: 晚上9:15 - 晚上10:15)</p>
-                                    <p class="text-sm text-gray-500 ml-4">特色：纪念杜甫，观湘江夜景。开放至约22:00-22:30，亮灯约19:00/19:30 - 22:30/23:30。门票约11-20元，学生证半价。交通：南门口步行15-20分钟，或地铁2号线至湘江中路站。</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <section id="sec-day1" class="block animate-fade-in space-y-6">
+            <div class="p-6 rounded-3xl glass-card">
+                <h2 class="text-2xl font-black text-slate-800 mb-2">5月1日：特种兵式高效打卡</h2>
+                <div class="flex flex-wrap gap-4 text-xs">
+                    <span class="px-3 py-1 bg-rose-100 text-rose-600 rounded-full font-bold">📍 核心锚点：中心公园</span>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full font-bold">🚇 地铁1号线直达</span>
+                    <span class="px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full font-bold">🚌 文旅专线通车</span>
                 </div>
             </div>
 
-            <div id="day2Detail" class="day-detail-content" style="display:none;">
-                <h3 class="text-xl font-semibold mb-4 text-teal-700">第二天：5月30日 —— 历史、文化与艺术的深度体验</h3>
-                 <p class="mb-4 text-gray-600">今日上午行程二选一，请根据您的兴趣选择：</p>
-                <div class="flex space-x-4 mb-6 justify-center">
-                    <button class="day2-option-btn active py-2 px-4 bg-orange-500 text-white rounded-md" onclick="showDay2Option('juzizhou', this)">🍊 橘子洲</button>
-                    <button class="day2-option-btn py-2 px-4 bg-teal-600 text-white rounded-md" onclick="showDay2Option('museum', this)">🏛️ 湖南省博物馆</button>
-                </div>
-
-                <div id="juzizhou" class="day2-option-content active space-y-6">
-                    <div class="card p-6">
-                        <div class="attraction-card-layout">
-                            <div class="attraction-image-container">
-                                <img src="https://img2.baidu.com/it/u=2958595971,2197005606&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667" alt="橘子洲头青年毛泽东雕像" class="attraction-image">
-                            </div>
-                            <div class="attraction-details">
-                                <h4 class="font-bold text-lg mb-2">🏞️ 上午 (约9:00 - 13:00)：橘子洲 (Júzi Zhōu)</h4>
-                                <p class="text-gray-600 mb-1">建议游玩：2.5-3小时</p>
-                                <p class="text-gray-600 mb-1">看点：青年毛泽东艺术雕像、湘江风光、公园漫步。《沁园春·长沙》意境。</p>
-                                <p class="text-gray-600 mb-1">开放时间：公园约7:00-22:00。</p>
-                                <p class="text-gray-600 mb-1">门票：免费入园。观光车约20元/人。 Thai 高峰期可能需预约入园。</p>
-                                <p class="text-gray-600 mb-1">烟花：5月30日通常无常规烟花。</p>
-                                <p class="text-gray-600">交通：地铁2号线至橘子洲站。</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="museum" class="day2-option-content space-y-6" style="display:none;">
-                     <div class="card p-6">
-                        <div class="attraction-card-layout">
-                            <div class="attraction-image-container">
-                                <img src="https://img0.baidu.com/it/u=3127763819,3775739917&fm=253&fmt=auto&app=138&f=JPEG?w=990&h=800" alt="湖南省博物馆" class="attraction-image">
-                            </div>
-                            <div class="attraction-details">
-                                <h4 class="font-bold text-lg mb-2">🏛️ 上午 (约9:00 - 13:00)：湖南省博物馆 (Húnán Shěng Bówùguǎn)</h4>
-                                <p class="text-gray-600 mb-1">建议参观：2.5-3小时 (含路途)</p>
-                                <p class="text-gray-600 mb-1">看点：马王堆汉墓文物 (辛追夫人遗体、T形帛画、素纱单衣等)。核心展览：“长沙马王堆汉墓陈列”、“湖南人——三湘历史文化陈列”。</p>
-                                <p class="text-gray-600 mb-1">开放时间：周二至周日9:00-17:00 (16:00/16:30止入)，周一闭馆。</p>
-                                <p class="text-gray-600 mb-1"><strong class="text-red-600">门票与预约：免费，但必须提前7天实名分时段预约 (官网/微信/支付宝)。名额有限！</strong></p>
-                                <p class="text-gray-600 mb-1">位置与交通：开福区东风路50号。地铁6号线至湘雅医院站，或公交至省博物馆站。</p>
-                                <p class="text-sm text-teal-600">💡 提示：马王堆文物是世界级文化遗产，强烈推荐。务必尽早预约！</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-6 mt-6">
-                    <div class="card p-6">
-                        <h4 class="font-bold text-lg mb-2">🍽️ 午餐 (约13:00 - 14:00)：岳麓山下或大学城区域</h4>
-                        <p class="text-gray-600">推荐：岳麓山脚下或湖南大学周边 (如麓山南路)，多物美价廉餐馆和小吃店。</p>
-                    </div>
-                    <div class="card p-6">
-                        <h4 class="font-bold text-lg mb-2">⛰️ 下午 (约14:00 - 18:00)：登岳麓山，访岳麓书院</h4>
-                        <p class="text-gray-600 mb-3">岳麓山与岳麓书院联游，共计约3-4小时。</p>
-                        <div class="attraction-card-layout mb-4">
-                            <div class="attraction-image-container">
-                                 <img src="https://img2.baidu.com/it/u=1811498497,4223868537&fm=253&fmt=auto&app=138&f=JPEG?w=1067&h=800" alt="岳麓山爱晚亭" class="attraction-image">
-                            </div>
-                            <div class="attraction-details">
-                                <p><strong class="text-orange-600">岳麓山 (Yuèlù Shān)</strong></p>
-                                <p class="text-sm text-gray-500 ml-4 mb-1">看点：爱晚亭、麓山寺、云麓宫、登高望远。文化名山。</p>
-                                <p class="text-sm text-gray-500 ml-4 mb-1">开放时间：公园主体开放，观光车约9:00-17:00，索道日间运营 (部分季节可能夜间)。</p>
-                                <p class="text-sm text-gray-500 ml-4 mb-1">门票与预约：免费入山。观光车 (单程20元，双程30元)、索道 (上50元，下40元，双程80元)另付费。<strong>强烈建议提前预约入山名额。</strong></p>
-                                <p class="text-sm text-gray-500 ml-4">交通：地铁2/4号线至溁湾镇站 (东门)，或4号线至湖南大学站 (南门)。</p>
-                            </div>
-                        </div>
-                         <div class="attraction-card-layout">
-                            <div class="attraction-image-container">
-                                <img src="https://img.meituan.net/leadinimg/b948200772a98bf980ea86df4dd95b8d169960.webp%40watermark%3D0" alt="岳麓书院" class="attraction-image">
-                            </div>
-                            <div class="attraction-details">
-                                <p><strong class="text-orange-600">岳麓书院 (Yuèlù Shūyuàn)</strong> (位于岳麓山内，建议1-1.5小时)</p>
-                                <p class="text-sm text-gray-500 ml-4 mb-1">看点：中国古代四大书院之一，千年历史，古建筑群，学术氛围。</p>
-                                <p class="text-sm text-gray-500 ml-4 mb-1">开放时间：5-10月约7:30-18:00 (17:45止入)。</p>
-                                <p class="text-sm text-gray-500 ml-4">门票：约40元/人。需预约。</p>
-                            </div>
-                        </div>
-                    </div>
-                     <div class="card p-6">
-                        <div class="attraction-card-layout">
-                            <div class="attraction-image-container">
-                                <img src="https://tr-osdcp.qunarzz.com/tr-osd-tr-space/img/2729f3982bee9c4e145c81b2be37114b.jpg_r_480x360x95_1ac22606.jpg" alt="后湖艺术园" class="attraction-image">
-                            </div>
-                            <div class="attraction-details">
-                                <h4 class="font-bold text-lg mb-2">🎨 傍晚 (约18:00后，若时间充裕)：后湖艺术园</h4>
-                                <p class="text-gray-600 mb-1">特色：文化艺术街区，艺术工作室、画廊、咖啡馆、公共艺术装置 (麦垛空间、月艺艺术空间)。D区多网红打卡点。</p>
-                                <p class="text-gray-600 mb-1">开放时间：园区开放，各店铺营业时间不一。</p>
-                                <p class="text-gray-600 mb-1">门票：免费。</p>
-                                <p class="text-gray-600">交通：地铁4号线至阜埠河站，步行约8分钟。近岳麓山/湖大。</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card p-6 mb-6 flex flex-col items-center">
-                <h3 class="text-lg font-bold text-teal-700 mb-2">路线地图</h3>
-                <div class="flex flex-col sm:flex-row w-full gap-4 justify-center items-center">
-                    <img src="https://img1.baidu.com/it/u=4059307899,2719691190&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1069" alt="长沙行程路线地图1" class="w-full sm:w-1/2 max-w-xl rounded-lg shadow-md">
-                    <img src="https://qcloud.dpfile.com/pc/bSwj_jjA8IE2pwOvRRESyrjIs7zA6FrN1HBW_n7fN7oStlc3tb2D46EPS2wRcTFF.jpg" alt="长沙行程路线地图2" class="w-full sm:w-1/2 max-w-xl rounded-lg shadow-md">
-                </div>
-                <p class="text-gray-500 mt-2 text-sm">（示意图，实际路线请以导航为准）</p>
-            </div>
-        </section>
-
-        <section id="food" class="content-section">
-            <h2 class="text-2xl font-bold mb-6 text-orange-600">🍜 美食寻味</h2>
-            <p class="mb-6 text-gray-600">长沙的美食是其灵魂所在！</p>
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="card p-6">
-                    <h3 class="text-xl font-semibold mb-2 text-teal-700">臭豆腐 (Chòu Dòufu)</h3>
-                    <p class="text-gray-600 mb-2">描述：长沙标志小吃，外酥里嫩，浇特制调料，风味独特。</p>
-                    <p class="font-medium text-gray-700">推荐店铺：</p>
-                    <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
-                        <li>黑色经典臭豆腐 (多家分店，坡子街/黄兴路步行街店人气旺)</li>
-                        <li>武爹臭豆腐 (坡子街上味舫128号，本地老字号)</li>
-                    </ul>
-                </div>
-                <div class="card p-6">
-                    <h3 class="text-xl font-semibold mb-2 text-teal-700">糖油粑粑 (Táng Yóu Bābā)</h3>
-                    <p class="text-gray-600 mb-2">描述：糯米粉制，糖油煎炸，金黄诱人，外脆内糯，香甜可口。</p>
-                    <p class="font-medium text-gray-700">推荐店铺：</p>
-                    <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
-                        <li>李公庙糖油粑粑 (黄兴中路百联东方对面巷内)</li>
-                        <li>南门口金记糖油坨坨 (南门口)</li>
-                        <li>老头子糖油粑粑 (湖南大学美食街)</li>
-                    </ul>
-                </div>
-                <div class="card p-6">
-                    <h3 class="text-xl font-semibold mb-2 text-teal-700">口味虾 (Kǒuwèi Xiā - 麻辣小龙虾)</h3>
-                    <p class="text-gray-600 mb-2">描述：长沙夏季夜宵霸主，麻辣鲜香，回味无穷。</p>
-                    <p class="font-medium text-gray-700">推荐店铺：</p>
-                    <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
-                        <li>文和友 (海信广场店，网红，可能需长时排队)</li>
-                        <li>虾小龙老长沙龙虾馆 (五一广场/解放西路店)</li>
-                        <li>聚味瞿记·龙虾堂 / 靓虾二哥小龙虾馆 (大众点评推荐)</li>
-                    </ul>
-                </div>
-                <div class="card p-6">
-                    <h3 class="text-xl font-semibold mb-2 text-teal-700">长沙米粉 (Chángshā Mǐfěn)</h3>
-                    <p class="text-gray-600 mb-2">描述：长沙人日常早餐首选，爽滑米粉配浓郁骨汤和各色码子。</p>
-                    <p class="font-medium text-gray-700">推荐店铺：</p>
-                    <ul class="list-disc list-inside text-sm text-gray-500 ml-4">
-                        <li>杨裕兴 (百年老字号)</li>
-                        <li>和记粉馆 (老牌粉馆)</li>
-                        <li>公交新村粉店 (本地口碑老店，五一广场附近有分店)</li>
-                        <li>夏记粉店 (大众点评“必吃榜”推荐)</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <section id="tips" class="content-section">
-            <h2 class="text-2xl font-bold mb-6 text-orange-600">💡 出行锦囊</h2>
-            <p class="mb-6 text-gray-600">了解这些实用信息，让您的长沙之旅更加顺畅愉快！</p>
             <div class="space-y-4">
-                <div>
-                    <button class="accordion-button w-full text-left font-semibold p-4 bg-amber-200 hover:bg-amber-300 rounded-md focus:outline-none flex justify-between items-center">
-                        <span>☀️ 长沙避雷指南</span>
-                        <span class="plus-minus text-xl transform transition-transform duration-300">+</span>
-                    </button>
-                    <div class="accordion-content bg-white p-4 rounded-b-md border border-t-0 border-amber-300">
-                        <p>◆1、去橘子洲一定要提前预约，看好天气，大雨天气会关闭。建议乘观光小火车(往返共40)，不然腿会走废!<br>◆2、谢子龙影像艺术馆没必要买票去二三楼看，一楼拍照打卡也很出片，不知道怎么拍可以请保安叔叔拍一下<br>◆3、不要去太平街买手串，串出来一副珠子要几百!<br>◆4、步行街拉你拍照奇装异服的人别理，血泪教训，拍完就和你要钱!!拍他也要钱!<br>◆5、不要打车去橘子洲，一般都有交通管制不能开进去，要走好长一段路，坐地铁到橘子洲站，步行个几分钟就能到。
-<br>◆6、五一广场里卖爪爪和水果捞的别买，称出来的价格能吓你一跳!<br>◆7、茶颜薅羊毛攻略:提前注册好会员，第一天到门店买一杯，生
-日日期填第二天的，第二天券到账
-<br>◆8、摩的师傅揽客一定要拒绝，很多宰外地游客的，短距离价格比打车还贵，不仅开得快还喜欢逆行非常不安全
-◆9、吃小吃可以首选河西大学城或者林科大附近<br>
-◆10、没必要去马栏山蹲明星，基本都在室内见不到，位置很偏<br>
-◆11、大部分出租车在人流量大的地方会坐地起价乱收费，最好选正规平台网约车<br>
-◆12、不能特别吃辣不要去壹盏灯，会辣鼠！<br>
-◆13、不要盯着一家茶颜排，避开人流量大的主干道，市中心隔几百米就有一家<br>
-◆14、省博物馆、谢子龙艺术馆、李自健美术馆都是逢周一闭馆<br>
-◆15、去解放西感受酒吧文化一定要结伴同行，晚上鱼龙混杂要注意安全<br>
-◆16、岳麓书院学生证可以半价，记得带上证件！岳麓山想坐滑道的，在17：00前去，过点就停运！<br>
-◆17、机场抵达的小伙伴可乘坐悬浮列车转地铁，打车要打正规平台网约车<br>
-◆18、晚高峰最好坐地铁出行，不然打车堵到怀疑人生</p>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-rose-500 rounded-full"></span>
+                        15:00 前（培训前打卡）
+                    </h3>
+                    <div class="flex bg-slate-100 p-1 rounded-xl">
+                        <button onclick="toggleMay1('A')" id="m1-btnA" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-rose-600">方案A：畅玩版</button>
+                        <button onclick="toggleMay1('B')" id="m1-btnB" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-500">方案B：速通版</button>
+                    </div>
+                </div>
+                <div id="m1-itinerary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    </div>
+            </div>
+
+            <div class="relative py-4">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-dashed border-rose-300"></div></div>
+                <div class="relative flex justify-center">
+                    <span class="bg-rose-600 text-white px-6 py-2 rounded-full font-black text-sm shadow-lg">15:00 - 16:00 核心任务：松山湖中心公园培训</span>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">
+                    <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
+                    16:00 后（培训后放飞）
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 rounded-3xl bg-white border border-rose-100 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="font-bold text-rose-600">线1：日落出片+夜生活</h4>
+                            <span class="text-[10px] bg-rose-50 px-2 py-1 rounded text-rose-400">主打拍照</span>
+                        </div>
+                        <ul class="space-y-4 text-sm text-slate-600">
+                            <li class="flex gap-3"><b>16:40</b> 沿滨湖路骑行，康桥蹲守华为小火车夕照。</li>
+                            <li class="flex gap-3"><b>18:30</b> 万科生活广场，品尝正宗本地烧鹅。</li>
+                            <li class="flex gap-3"><b>20:00</b> 观赏音乐喷泉，万象汇夜市开启。</li>
+                        </ul>
+                    </div>
+                    <div class="p-6 rounded-3xl bg-white border border-blue-100 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="font-bold text-blue-600">线2：文艺打卡+美食探店</h4>
+                            <span class="text-[10px] bg-blue-50 px-2 py-1 rounded text-blue-400">主打人文</span>
+                        </div>
+                        <ul class="space-y-4 text-sm text-slate-600">
+                            <li class="flex gap-3"><b>16:40</b> 悠兰里艺术街区，沉浸式看展拍照。</li>
+                            <li class="flex gap-3"><b>18:00</b> 大朗里悦里商圈，美食密度极高。</li>
+                            <li class="flex gap-3"><b>19:30</b> 荔香湿地公园，散步消食看夜景。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-music" class="hidden animate-fade-in space-y-8">
+            <div class="bg-rose-600 p-10 rounded-3xl text-white shadow-2xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <span class="text-xs font-bold uppercase tracking-widest opacity-80">May 2 - May 4</span>
+                    <h2 class="text-4xl font-black mt-2 mb-4">STRAWBERRY MUSIC FESTIVAL 🍓</h2>
+                    <p class="text-lg opacity-90 max-w-md">东莞站：热烈、奔跑、尖叫。这是一场不计成本的快乐，属于所有人的狂欢。</p>
+                </div>
+                <div class="absolute -right-8 -bottom-8 text-[12rem] opacity-10 rotate-12">🎸</div>
+            </div>
+            
+            <!-- 日期切换按钮 -->
+            <div class="flex justify-center gap-3 md:gap-6" role="tablist" aria-label="演出日期选择">
+                <button onclick="switchMusicDay(1)" id="music-btn-1" class="music-tab-btn active px-6 py-3 rounded-2xl font-black text-sm transition-all duration-300 border-2" role="tab" aria-selected="true" aria-controls="music-schedule">第一天</button>
+                <button onclick="switchMusicDay(2)" id="music-btn-2" class="music-tab-btn px-6 py-3 rounded-2xl font-black text-sm transition-all duration-300 border-2 border-transparent bg-slate-100 text-slate-500 hover:bg-slate-200" role="tab" aria-selected="false" aria-controls="music-schedule">第二天</button>
+                <button onclick="switchMusicDay(3)" id="music-btn-3" class="music-tab-btn px-6 py-3 rounded-2xl font-black text-sm transition-all duration-300 border-2 border-transparent bg-slate-100 text-slate-500 hover:bg-slate-200" role="tab" aria-selected="false" aria-controls="music-schedule">第三天</button>
+            </div>
+
+            <!-- 日程展示区 -->
+            <div id="music-schedule-container" class="relative min-h-[400px]">
+                <!-- 骨架屏 (默认隐藏) -->
+                <div id="music-skeleton" class="hidden space-y-4 animate-pulse">
+                    <div class="h-12 bg-slate-100 rounded-2xl w-full"></div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="h-24 bg-slate-100 rounded-2xl"></div>
+                        <div class="h-24 bg-slate-100 rounded-2xl"></div>
+                        <div class="h-24 bg-slate-100 rounded-2xl"></div>
+                    </div>
+                    <div class="h-64 bg-slate-100 rounded-2xl w-full"></div>
+                </div>
+
+                <!-- 实际内容 -->
+                <div id="music-content" class="transition-opacity duration-300">
+                    <!-- 表头 (跨端统一) -->
+                    <div class="music-grid mb-4 px-4 md:px-6 text-[10px] md:text-xs font-black text-rose-300 uppercase tracking-widest">
+                        <div>演出时段</div>
+                        <div>草莓舞台</div>
+                        <div>爱舞台</div>
+                    </div>
+                    <!-- 日程列表 -->
+                    <div id="music-list" class="space-y-3 pb-4 md:pb-0" id="music-schedule">
+                        <!-- JS 渲染 -->
                     </div>
                 </div>
 
-                <div>
-                    <button class="accordion-button w-full text-left font-semibold p-4 bg-amber-200 hover:bg-amber-300 rounded-md focus:outline-none flex justify-between items-center">
-                        <span>🚇 玩转长沙：交通出行指南</span>
-                        <span class="plus-minus text-xl transform transition-transform duration-300">+</span>
-                    </button>
-                    <div class="accordion-content bg-white p-4 rounded-b-md border border-t-0 border-amber-300">
-                        <p class="mb-2">长沙公共交通便利，地铁是主要方式。可通过微信/支付宝“城市通”小程序或“湘行一卡通”App扫码乘车。</p>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full table">
-                                <thead>
-                                    <tr><th>交通方式</th><th>支付方式</th><th>主要线路/提示</th><th>大致费用参考</th></tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td>地铁</td><td>“城市通”小程序, 湘行一卡通App等</td><td>本行程主要涉及1、2号线</td><td>起步价2元/6公里</td></tr>
-                                    <tr><td>出租车/网约车</td><td>现金, 支付宝, 微信支付</td><td>按表计价，高峰期可能加价或等待</td><td>例：3.3公里约24元</td></tr>
-                                    <tr><td>公交车</td><td>“城市通”小程序, 湘行一卡通App, 投币</td><td>线路众多，但可能较慢</td><td>通常2元</td></tr>
-                                </tbody>
-                            </table>
+                <!-- 错误提示 -->
+                <div id="music-error" class="hidden flex-col items-center justify-center py-20 space-y-4">
+                    <span class="text-4xl">📡</span>
+                    <p class="text-slate-500 font-bold">日程加载失败，请重试</p>
+                    <button onclick="retryMusicLoad()" class="px-6 py-2 bg-rose-600 text-white rounded-full font-bold text-sm shadow-lg hover:bg-rose-700 transition-colors">重新加载</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-day5" class="hidden animate-fade-in space-y-6">
+            <div class="p-6 rounded-3xl bg-slate-900 text-white shadow-xl">
+                <h2 class="text-2xl font-black mb-2">5月5日：地铁1/2号线沿线特种兵</h2>
+                <p class="text-slate-400 text-sm">全线支持电子乘车码，优先选择“出站即达”景点，效率拉满。</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="renderMay5(1)" id="m5-btn1" class="m5-selector p-4 rounded-2xl border-2 border-rose-500 bg-white text-rose-600 font-bold text-xs transition-all shadow-md">方案1：经典地标线</button>
+                <button onclick="renderMay5(2)" id="m5-btn2" class="m5-selector p-4 rounded-2xl border-2 border-transparent bg-slate-100 text-slate-500 font-bold text-xs transition-all">方案2：文艺吃货线</button>
+                <button onclick="renderMay5(3)" id="m5-btn3" class="m5-selector p-4 rounded-2xl border-2 border-transparent bg-slate-100 text-slate-500 font-bold text-xs transition-all">方案3：历史深度线</button>
+                <button onclick="renderMay5(4)" id="m5-btn4" class="m5-selector p-4 rounded-2xl border-2 border-transparent bg-slate-100 text-slate-500 font-bold text-xs transition-all">方案4：懒人吸氧线</button>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
+                            <tr>
+                                <th class="px-6 py-4">时间段</th>
+                                <th class="px-6 py-4">地铁站点</th>
+                                <th class="px-6 py-4">行程内容</th>
+                                <th class="px-6 py-4">核心亮点</th>
+                            </tr>
+                        </thead>
+                        <tbody id="m5-table-body" class="divide-y divide-slate-50">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-analytics" class="hidden animate-fade-in space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="p-6 rounded-3xl bg-white border border-rose-50 shadow-sm flex flex-col items-center">
+                    <h3 class="font-bold text-slate-700 mb-6">特种兵路线强度 (预估步行KM)</h3>
+                    <div class="chart-container">
+                        <canvas id="kmChart"></canvas>
+                    </div>
+                </div>
+                <div class="p-6 rounded-3xl bg-white border border-rose-50 shadow-sm flex flex-col items-center">
+                    <h3 class="font-bold text-slate-700 mb-6">5月1日 任务/休闲占比</h3>
+                    <div class="chart-container">
+                        <canvas id="ratioChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 rounded-3xl bg-amber-50 border border-amber-100">
+                <h4 class="font-bold text-amber-800 mb-2">💡 出行终极贴士</h4>
+                <ul class="text-xs text-amber-700 space-y-2 list-disc ml-4">
+                    <li><b>文旅专线：</b>2元通坐，避开五一打车难和拥堵的最佳方案。</li>
+                    <li><b>预约提醒：</b>博物馆/纪念馆提前1-3天预约，五一人流极大。</li>
+                    <li><b>拍摄光线：</b>华为欧洲小镇康桥机位，推荐17:00后拍摄，夕阳绝美。</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="sec-thanks" class="hidden animate-fade-in">
+            <div class="flex flex-col items-center justify-center min-h-[500px]">
+                <h2 class="text-3xl font-black text-orange-600 mb-10 animate-slide-in">松山湖站</h2>
+                
+                <div class="flex flex-row flex-wrap items-center justify-center gap-10 w-full mb-8">
+                    <div class="flex flex-col items-center group">
+                        <div class="relative">
+                            <img src="https://img.meituan.net/content/42551ca2e6f259d856a1ed8024c85435118353.jpg" alt="统筹" class="w-32 h-32 rounded-full shadow-lg border-4 border-orange-200 mb-4 animate-bounce-slow animate-glow animate-rotate-yoyo transition-transform group-hover:scale-110">
                         </div>
-                         <p class="mt-4 text-sm text-teal-600">💡 提示：提前设置好乘车码能节省时间。</p>
+                        <h3 class="text-xl font-black text-teal-700 mb-1 animate-slide-in animate-float">统筹：君君</h3>
+                    </div>
+                    <div class="flex flex-col items-center group">
+                        <div class="relative">
+                            <img src="https://img.meituan.net/content/cbfa5d04dea121def8f6efb8114689de70990.jpg" alt="统筹助理" class="w-32 h-32 rounded-full shadow-lg border-4 border-orange-200 mb-4 animate-bounce-slow animate-glow animate-rotate-yoyo transition-transform group-hover:scale-110">
+                        </div>
+                        <h3 class="text-xl font-black text-teal-700 mb-1 animate-slide-in animate-float">统筹助理：61C</h3>
                     </div>
                 </div>
                 
-                <div>
-                    <button class="accordion-button w-full text-left font-semibold p-4 bg-amber-200 hover:bg-amber-300 rounded-md focus:outline-none flex justify-between items-center">
-                        <span>🎟️ 景点预约提示：务必提前规划！</span>
-                         <span class="plus-minus text-xl transform transition-transform duration-300">+</span>
-                    </button>
-                    <div class="accordion-content bg-white p-4 rounded-b-md border border-t-0 border-amber-300">
-                        <p>长沙许多主要景点 (尤其湖南博物院、岳麓山、岳麓书院) 需提前通过官方微信公众号或小程序网上预约，通常提前3-7天。名额有限，不提前预约很可能无法入园。</p>
-                        <ul class="list-disc list-inside text-sm text-gray-500 ml-4 mt-2">
-                            <li>岳麓山、橘子洲：“岳麓山橘子洲旅游区”官微，提前3天(含当天)。</li>
-                            <li>湖南博物院：官网、官微服务号、支付宝小程序，提前7天(不含当天)。</li>
-                        </ul>
-                    </div>
-                </div>
+                <!-- <p class="text-slate-500 text-center max-w-xl mb-12 animate-fade-in animate-float leading-relaxed px-4">
+                    感谢东莞音乐节统筹君君与助理61C的辛勤付出和贴心服务，让这场音乐盛宴更加完美动人！
+                </p> -->
+                
+                <div class="w-32 h-1 bg-orange-100 rounded-full mb-12"></div>
 
-                <div>
-                    <button class="accordion-button w-full text-left font-semibold p-4 bg-amber-200 hover:bg-amber-300 rounded-md focus:outline-none flex justify-between items-center">
-                        <span>⚠️ 温馨提示：长沙之行注意事项</span>
-                         <span class="plus-minus text-xl transform transition-transform duration-300">+</span>
-                    </button>
-                    <div class="accordion-content bg-white p-4 rounded-b-md border border-t-0 border-amber-300">
-                        <ul class="list-disc list-inside space-y-1 text-gray-600">
-                            <li><strong>安全第一：</strong>人多处注意财物。</li>
-                            <li><strong>理性消费：</strong>景点购物用餐留意价格。</li>
-                            <li><strong>尊重习俗：</strong>参观文化场所遵守规定。</li>
-                            <li><strong>语言沟通：</strong>普通话为主。</li>
-                            <li><strong>网络与支付：</strong>移动支付普及，提前绑定银行卡。</li>
-                            <li><strong>天气与健康：</strong>五月底可能炎热潮湿，防暑降温，多补水。长沙口味偏辣，不习惯可告知服务员。</li>
-                            <li><strong>绿色出行：</strong>尽量选择公共交通。</li>
-                            <li><strong>保持灵活：</strong>享受旅途中的不期而遇。</li>
-                        </ul>
-                    </div>
+                <div class="flex flex-col items-center">
+                    <img src="https://img.meituan.net/content/70e92d87f7c2429e94f185575514d88241704.jpg" alt="啊b" class="w-40 h-40 rounded-full shadow-xl border-4 border-orange-300 mb-6 animate-bounce-slow">
+                    <h3 class="text-2xl font-black text-teal-800 mb-3 animate-slide-in">周边pp</h3>
+                    <!-- <p class="text-slate-600 text-center max-w-xs animate-fade-in px-4">
+                        感谢莞草官方周边组长边边的辛勤付出与细致安排，让东莞周边游顺利！
+                    </p> -->
                 </div>
             </div>
         </section>
 
-<section id="music" class="content-section">
-  <h2 class="text-2xl font-bold mb-6 text-orange-600">🎵 音乐节</h2>
-  <!-- 组长介绍开始 -->
-  <style>
-  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes slide-in { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
-  @keyframes rotate-yoyo { 0% { transform: rotateY(0deg);} 100% { transform: rotateY(360deg);} }
-  @keyframes glow { 0%,100% { box-shadow: 0 0 30px 10px #fbbf24, 0 0 60px 20px #f59e42; filter: brightness(1.1);} 50% { box-shadow: 0 0 60px 30px #f59e42, 0 0 90px 40px #fbbf24; filter: brightness(1.3);} }
-  @keyframes float { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-18px);} }
-  @keyframes pop-in { 0% { transform: scale(0.7) rotate(-10deg); opacity: 0;} 80% { transform: scale(1.1) rotate(3deg); opacity: 1;} 100% { transform: scale(1) rotate(0); opacity: 1;} }
-  .animate-fade-in { animation: fade-in 1.2s cubic-bezier(.4,2,.6,1); }
-  .animate-slide-in { animation: slide-in 1s cubic-bezier(.4,2,.6,1) both; }
-  .animate-bounce-slow { animation: bounce-slow 2.5s infinite; }
-  .animate-rotate-yoyo { animation: rotate-yoyo 2.5s linear infinite; }
-  .animate-glow { animation: glow 2.2s ease-in-out infinite alternate; }
-  .animate-float { animation: float 2.8s ease-in-out infinite; }
-  .animate-pop-in { animation: pop-in 1.1s cubic-bezier(.4,2,.6,1); }
-  .music-leader-gradient {
-    background: linear-gradient(90deg, #fbbf24 0%, #f59e42 50%, #fbbf24 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  </style>
-  <div class="flex flex-col items-center justify-center py-8 animate-fade-in">
-    <div class="relative animate-pop-in avatar-glow" style="width:160px;height:160px;">
-      <canvas id="avatarGlow" width="180" height="180" class="avatar-glow-canvas"></canvas>
-      <img src="https://gips1.baidu.com/it/u=552568746,4285132912&fm=3074&app=3074&f=JPEG" alt="音乐节组长yoyo" class="w-36 h-36 rounded-full shadow-2xl border-4 border-orange-400 animate-glow animate-rotate-yoyo" style="position:relative;z-index:3;">
-      <span class="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full shadow animate-float" style="z-index:4;">组长</span>
-    </div>
-    <h3 class="text-2xl font-bold mt-4 mb-2 music-leader-gradient animate-slide-in wave">yoyo（猎豹版）</h3>
-   <br> <p class="text-lg text-gray-700 text-center max-w-lg animate-fade-in animate-float typing-text" id="typingText">yoyo，音乐节资深玩家，热爱音乐与旅行，带领大家畅玩音乐节，体验星城独特魅力！如有疑问欢迎随时咨询组长yoyo～</p>
-  </div>
-  <!-- 组长介绍结束 -->
-  <div class="flex flex-col items-center justify-center py-8 animate-fade-in">
-    <div class="flex space-x-4 mt-4">
-      <button id="musicDay1Btn" class="bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400">第一天</button>
-      <button id="musicDay2Btn" class="bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400">第二天</button>
-    </div>
-    <div class="flex space-x-4 mt-4">
-    <img id="day1Img" src="https://img.meituan.net/content/66341b309cbc3257cd888d7a16dd24af441323.jpg" alt="第一天" class="rounded shadow-lg">
-    <img id="day2Img" src="https://img.meituan.net/content/8cf492318fe3a78f4b46b7f6578ba9fe455937.jpg" alt="第二天" class="rounded shadow-lg hidden">
-    </div>
-  </div>
-  
-</section>
-
-<section id="thanks" class="content-section">
-    <div class="flex flex-col items-center justify-center min-h-[350px] animate-fade-in">
-        <h2 class="text-3xl font-bold text-orange-600 mb-4 animate-slide-in">特别鸣谢</h2>
-        <!-- 统筹与助理并排 -->
-        <div class="flex flex-row flex-wrap items-center justify-center gap-10 w-full mb-4">
-            <div class="flex flex-col items-center">
-                <img src="https://img.meituan.net/content/42551ca2e6f259d856a1ed8024c85435118353.jpg" alt="统筹" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full shadow-lg border-4 border-orange-200 mb-2 animate-bounce-slow animate-glow animate-rotate-yoyo">
-             <br>   <h3 class="text-lg sm:text-xl font-semibold text-teal-700 mb-1 animate-slide-in animate-float">统筹：君君</h3>
-            </div>
-            <div class="flex flex-col items-center">
-                <img src="https://img.meituan.net/content/5e47245184cbae9e9e261870d1210af499273.jpg" alt="统筹助理头像" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full shadow-lg border-4 border-orange-200 mb-2 animate-bounce-slow animate-glow animate-rotate-yoyo">
-               <br> <h3 class="text-lg sm:text-xl font-semibold text-teal-700 mb-1 animate-slide-in animate-float">统筹助理：咪咪</h3>
-            </div>
-        </div>
-        <p class="text-gray-700 text-center max-w-xl mb-8 animate-fade-in animate-float">感谢长沙音乐节统筹君君与助理咪咪的辛勤付出和贴心服务，让这场音乐盛宴更加完美动人！</p>
-        <!-- 艺人统筹四人并排
-        <div class="flex flex-row flex-wrap items-center justify-center gap-8 w-full mb-4">
-            <div class="flex flex-col items-center">
-                <img src="artist1.jpg" alt="艺人统筹1" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-lg border-4 border-orange-100 mb-1 animate-bounce-slow animate-glow animate-rotate-yoyo">
-                <br>  <span class="text-base font-medium text-teal-700 animate-float">小A</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <img src="artist2.jpg" alt="艺人统筹2" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-lg border-4 border-orange-100 mb-1 animate-bounce-slow animate-glow animate-rotate-yoyo">
-                <br>   <span class="text-base font-medium text-teal-700 animate-float">小B</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <img src="artist3.jpg" alt="艺人统筹3" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-lg border-4 border-orange-100 mb-1 animate-bounce-slow animate-glow animate-rotate-yoyo">
-                <br>  <span class="text-base font-medium text-teal-700 animate-float">小C</span>
-            </div>
-           <div class="flex flex-col items-center">
-                <img src="artist4.jpg" alt="艺人统筹4" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-lg border-4 border-orange-100 mb-1 animate-bounce-slow animate-glow animate-rotate-yoyo">
-                <br>  <span class="text-base font-medium text-teal-700 animate-float">小D</span>
-            </div>
-        </div>
-        <p class="text-gray-700 text-center max-w-xl animate-fade-in animate-float">感谢艺统老师的专业协调与辛勤努力，为活动顺利举办保驾护航！</p>
-    </div> -->
-    <br>
-    <div class="flex flex-col items-center">
-        <img src="https://miaobi-lite.bj.bcebos.com/miaobi/5mao/b%276IC/6ay85aS05YOPXzE3MzUzMjQwMTIuNzgxNzk4MV8xNzM1MzI0MDEzLjIxODIxNTVfMTczNTMyNDAxMy45NjM4MTk3XzE3MzUzMjQwMTQuNjUwMjQxNF8xNzM1MzI0MDE1LjMxOTU3ODJfMTczNTMyNDAxNS45ODg5NjAzXzE3MzUzMjQwMTYuODA1MjE0Ml8xNzM1MzI0MDE3LjY1Mjg2OA%3D%3D%27/7.png" alt="啊b头像" class="w-32 h-32 rounded-full shadow-lg border-4 border-orange-300 mb-3 animate-bounce-slow">
-        <h3 class="text-xl font-semibold text-teal-700 mb-1 animate-slide-in">啊b</h3>
-        <p class="text-gray-700 text-center max-w-xs animate-fade-in">感谢莞草艺接组长啊b的辛勤付出与细致安排，让东莞艺接游顺利圆满！</p>
-    </div>
-
-</section>
-
-
-
     </main>
 
-    <footer class="text-center p-6 mt-8 bg-amber-100 text-gray-600 text-sm">
-        <p> 2025 长沙旅游交互指南</p>
-        <p>&copy;时 </p>
-        <p>祝您旅途愉快！</p>
+    <footer class="w-full text-center py-10 bg-slate-50 text-slate-400 text-xs mt-auto border-t border-slate-100">
+        <p>东莞🍓旅游指南 · 2026 · 极致效率 极致体验</p>
     </footer>
 
-    <script>
-        let currentTab = 'overview';
-        let currentDayDetail = 'day1Detail';
-        let currentDay2Option = 'juzizhou';
-        let timeAllocationChartInstance = null;
-
-        function showTab(tabId) {
-            document.getElementById(currentTab).classList.remove('active');
-            document.querySelector(`.tab-button[onclick="showTab('${currentTab}')"]`).classList.remove('active', 'bg-orange-500', 'text-white');
-            document.querySelector(`.tab-button[onclick="showTab('${currentTab}')"]`).classList.add('text-gray-700');
-
-
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active', 'bg-orange-500', 'text-white');
-            document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.remove('text-gray-700');
-            currentTab = tabId;
-            window.scrollTo(0, 0);
-
-            if (tabId === 'overview' && !timeAllocationChartInstance) {
-                renderTimeAllocationChart();
-            }
-        }
-
-        function showDayDetail(detailId, buttonElement) {
-            document.getElementById(currentDayDetail).style.display = 'none';
-            document.getElementById(detailId).style.display = 'block';
-            currentDayDetail = detailId;
-
-            const buttons = document.querySelectorAll('#daily > .flex > button'); // More specific selector
-            buttons.forEach(btn => {
-                btn.classList.remove('bg-orange-500', 'text-white', 'ring-orange-400', 'hover:bg-orange-600');
-                btn.classList.add('bg-teal-600', 'text-white', 'hover:bg-teal-700', 'focus:ring-teal-400');
-            });
-            buttonElement.classList.remove('bg-teal-600', 'hover:bg-teal-700', 'focus:ring-teal-400');
-            buttonElement.classList.add('bg-orange-500', 'text-white', 'hover:bg-orange-600', 'focus:ring-orange-400');
-        }
-        
-        function showDay2Option(optionId, buttonElement) {
-            document.getElementById(currentDay2Option).style.display = 'none';
-            document.getElementById(currentDay2Option).classList.remove('active');
+    <!-- 详情路线弹窗 -->
+    <div id="route-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-slide-in relative">
+            <!-- 顶部装饰 -->
+            <div class="h-32 bg-rose-600 relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10 text-8xl flex items-center justify-center rotate-12 select-none">📍</div>
+                <button onclick="closeModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors backdrop-blur-md">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
             
-            const optionButtons = document.querySelectorAll('.day2-option-btn');
-            optionButtons.forEach(btn => {
-                btn.classList.remove('active', 'bg-orange-500');
-                btn.classList.add('bg-teal-600');
-            });
+            <!-- 内容区 -->
+            <div class="px-8 pb-10 -mt-10 relative z-10">
+                <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-50 mb-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span id="modal-time" class="px-3 py-1 bg-rose-50 text-rose-600 rounded-full text-[10px] font-black"></span>
+                        <span id="modal-tag" class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black"></span>
+                    </div>
+                    <h3 id="modal-title" class="text-2xl font-black text-slate-800"></h3>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center shrink-0 mt-1">
+                            <span class="text-xl">✨</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-700 mb-1">详情路线</h4>
+                            <p id="modal-details" class="text-sm text-slate-500 leading-relaxed text-justify"></p>
+                        </div>
+                    </div>
+                </div>
 
-            document.getElementById(optionId).style.display = 'block';
-            document.getElementById(optionId).classList.add('active');
-            buttonElement.classList.add('active', 'bg-orange-500');
-            buttonElement.classList.remove('bg-teal-600');
-            currentDay2Option = optionId;
+                <div class="mt-8 pt-6 border-t border-dashed border-slate-100">
+                    <button onclick="closeModal()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-rose-600 transition-colors shadow-lg shadow-slate-200">
+                        了解，立刻出发
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DATA: MAY 1st
+        const m1Data = {
+            A: [
+                { 
+                    time: "09:00-10:30", 
+                    title: "松山湖科学公园", 
+                    tag: "生态", 
+                    info: "桃花源、科学之眼，人少景美。", 
+                    img: "https://img.meituan.net/content/76f95f0f13bbaa3e5e83937e0df44b421011459.jpg",
+                    details: "09:00准时抵达，从主入口进入园区，直行50米左转，沿木栈道步行约10分钟到达桃花源，这里绿植繁茂、静谧清幽，可停留20分钟，欣赏湖光绿植相映的生态美景，避开人流密集路段；随后沿指示牌步行15分钟至核心打卡点科学之眼，打卡标志性建筑，拍摄全景大片，感受科技与自然的融合，停留30分钟；最后沿主路步行10分钟返回入口，全程1.5小时，高效逛完核心景点，人少景美不拥挤，还可顺路打卡园区内简易生态景观，不耽误后续行程。"
+                },
+                { 
+                    time: "10:30-12:00", 
+                    title: "华为欧洲小镇", 
+                    tag: "打卡", 
+                    info: "红色小火车，外围打卡超出片。", 
+                    img: "https://img.meituan.net/content/cec4b3253c412ae0b5c68d246bd81f481328873.jpg",
+                    details: "10:30从科学公园出发，10:40抵达打卡点，将车停至康桥公交站旁指定停车区域（免费且便捷）；沿步道步行至康桥，这里是拍摄红色小火车的最佳点位，小火车每5分钟一班，可停留40分钟，拍摄小火车穿行于欧式建筑间的画面，搭配湖光背景超出片，建议穿简约风衣物，用广角镜头捕捉全景美感；随后沿外围步道步行20分钟，远眺园区内12个欧式建筑组团，重点拍摄红瓦尖顶与湖面倒影的景致；11:50返回停车点，全程1.5小时，无需预约，外围打卡无遮挡，高效出片不耗时。"
+                },
+                { 
+                    time: "12:00-13:00", 
+                    title: "万象汇午餐", 
+                    tag: "美食", 
+                    info: "顶流商圈，避开景区高峰。", 
+                    img: "https://img.meituan.net/content/edee89e2455731fd8e43b7aaf02dcfbd1382672.jpg",
+                    details: "驱车直达平价美食街区，选择地道粤式简餐、特色濑粉，远离景区高价消费，用餐上菜快、休整舒适，一小时高效干饭休息，不耽误后续行程节奏。"
+                },
+                { 
+                    time: "13:00-14:00", 
+                    title: "悠兰里艺术街区", 
+                    tag: "文艺", 
+                    info: "钟书阁、盒子美术馆，30min逛完。", 
+                    img: "https://img.meituan.net/content/ef6f5810e758ad5f818a6f4126a1b185785119.jpg",
+                    details: "13:00抵达街区，从主入口进入，直行30米即达钟书阁（A3栋），这里设计感极强，随手拍都出片，重点打卡一楼休息区与二楼扶梯旁拍照点位，停留15分钟，无需深入游览，快速捕捉文艺氛围；随后步行5分钟至盒子美术馆（A2栋），简洁的场馆设计搭配当期展览，快速浏览打卡，停留10分钟；最后沿街区步道漫步5分钟，打卡简约文艺小景，13:55返回停车点，全程1小时，刚好30分钟逛完核心场馆，高效完成文艺打卡，不耽误15:00前培训集合。"
+                }
+            ],
+            B: [
+                { 
+                    time: "12:00-12:40", 
+                    title: "松湖烟雨核心段", 
+                    tag: "打卡", 
+                    info: "查理大桥欧式机位，20min出片。", 
+                    img: "https://img.meituan.net/content/378be8b39bb6462a7b51012d8a26a63b973639.png",
+                    details: "入园直行直达网红欧式查理大桥，抢占湖景拱桥绝佳拍摄位，搭配湖面倒影、远景城堡快速取景，20 分钟高效出片，顺带漫步环湖绿道观赏松湖景致，准时结束前往下一站点。"
+                },
+                { 
+                    time: "12:40-13:40", 
+                    title: "万科里午餐", 
+                    tag: "休整", 
+                    info: "避开景区溢价，粤菜简餐速通。", 
+                    img: "https://img.meituan.net/content/658708d4355baa5f048235aa212812f0927473.jpg",
+                    details: "驱车直达平价美食街区，选择地道粤式简餐、特色濑粉，远离景区高价消费，用餐上菜快、休整舒适，一小时高效干饭休息，不耽误后续行程节奏。"
+                },
+                { 
+                    time: "13:40-14:20", 
+                    title: "状元笔公园", 
+                    tag: "文化", 
+                    info: "免费岭南园林，人少景美。 ", 
+                    img: "https://img.meituan.net/content/54731e5658382aea2883e9afe87cb5e0739081.jpg",
+                    details: "漫步岭南古风园林，打卡状元坊、魁星阁、桂月亭人文古建筑，穿行清幽林间步道，感受状元文化底蕴，园区安静人少，轻松悠闲打卡游览。"
+                },
+                { time: "14:20-14:30", title: "返回中心公园", tag: "签到", info: "预留充足时间准备培训。" }
+            ]
+        };
+
+        // DATA: MAY 5th
+        const m5Data = {
+            1: [
+                ["08:30-09:10", "1号线·松山湖站", "出发集结", "1号线交通枢纽，紧邻松山湖中心公园"],
+                ["09:10-09:40", "地铁通勤", "1号线松山湖站→同沙公园站", "预留出站+共享单车接驳时间"],
+                ["09:40-11:40", "同沙生态公园", "核心水杉林+环湖绿道", "南门入口，共享单车直达核心区，城市绿肺打卡"],
+                ["11:40-12:10", "地铁通勤", "1号线同沙公园站→鸿福路站", "直达国贸CBD，无需换乘"],
+                ["12:10-13:40", "鸿福路站", "国贸午餐+民盈国贸中心打卡", "东莞第一高楼，一站式解决午餐+城市地标打卡"],
+                ["13:40-15:40", "鸿福路站步行5分钟", "东莞展览馆/科技馆", "免费预约，室内避晒休整，沉浸式科普人文"],
+                ["15:40-16:00", "地铁通勤", "2号线鸿福路站→旗峰公园站", "1站直达，无需换乘"],
+                ["16:00-18:00", "旗峰公园站", "黄旗山城市公园", "傍晚气温回落，登高祈福，俯瞰东莞全景，灯笼顶打卡"],
+                ["18:00-18:30", "地铁通勤", "2号线旗峰公园站→寮厦站", "顺向向南，无折返，6站直达厚街"],
+                ["18:30-20:30", "寮厦站", "厚街万达+厚街特色美食", "正宗厚街濑粉、烧鹅濑，夜市打卡，行程收尾"]
+            ],
+            2: [
+                ["08:30-09:00", "1号线·大岭山站", "出发集结", "预留出站接驳时间"],
+                ["09:00-09:20", "打车/公交接驳", "大岭山站→东江纵队纪念馆", "1.5公里，直达景区入口"],
+                ["09:20-10:50", "东江纵队纪念馆", "国家级抗战红色地标", "沉浸式参观，人文历史打卡"],
+                ["10:50-11:20", "打车接驳", "纪念馆→大岭山烧鹅一条街", "3公里，直达本地最正宗的荔枝柴烧鹅店"],
+                ["11:20-12:50", "大岭山烧鹅一条街", "特色午餐", "荔枝柴烧鹅、客家碌鹅，本地私藏美味"],
+                ["12:50-13:40", "地铁通勤", "1号线大岭山站→汽车总站", "7站直达，无需换乘，万江核心区"],
+                ["13:40-14:00", "共享单车接驳", "汽车总站→下坝坊", "1.2公里，直达东莞小鼓浪屿"],
+                ["14:00-16:00", "下坝坊/工农8号", "复古文艺打卡", "文创街区、清吧咖啡，复古出片，两个街区步行5分钟可达"],
+                ["16:00-16:30", "打车接驳", "下坝坊→粤晖园", "8公里，20分钟直达，无地铁直达，打车是最优解"],
+                ["16:30-18:30", "粤晖园", "岭南最大私家园林", "汉服打卡、园林游览，2小时充足游览时间"],
+                ["18:30-19:00", "打车接驳", "粤晖园→道滘镇中心", "3公里，直达非遗美食聚集地"],
+                ["19:00-20:30", "道滘镇", "非遗美食打卡", "正宗道滘粽、佳佳美手信、道滘肉丸粥，伴手礼采购"]
+            ],
+            3: [
+                ["08:30-09:00", "2号线·虎门火车站", "出发集结", "预留出站接驳时间"],
+                ["09:00-09:30", "打车接驳", "虎门火车站→鸦片战争博物馆", "6公里，20分钟直达销烟池旧址"],
+                ["09:30-12:00", "鸦片战争博物馆+威远炮台", "国家级文保单位", "先逛销烟池纪念馆，再打车到威远炮台，沉浸式历史游览，2.5小时充足"],
+                ["12:00-12:30", "打车接驳", "威远炮台→虎门镇中心", "4公里，直达本地特色食街"],
+                ["12:30-14:00", "虎门镇中心", "特色午餐", "地道虎门海鲜、虎门油鸭、白沙油鸭腊味饭，本地老字号"],
+                ["14:00-14:50", "地铁通勤", "2号线虎门火车站→鸿福路站，换乘1号线→人民医院站", "直达可园最近地铁口，预留换乘时间"],
+                ["14:50-15:10", "共享单车接驳", "人民医院站→可园博物馆", "1公里，直达岭南四大名园入口"],
+                ["15:10-17:10", "可园博物馆", "岭南园林巅峰之作", "2小时充足游览，含园林+博物馆展区，深度打卡"],
+                ["17:10-17:30", "步行直达", "可园→莞城骑楼街+中山公园", "800米，10分钟步行，无通勤成本"],
+                ["17:30-19:00", "莞城骑楼/中山公园", "老东莞烟火气打卡", "百年骑楼、中山公园旧址，感受老莞城底蕴"],
+                ["19:00-19:20", "地铁通勤", "1号线人民医院站→鸿福路站", "2站直达，无需换乘"],
+                ["19:20-21:00", "鸿福路站", "莞香印巷夜逛", "临湖咖啡街、网红市集，夜景绝美，行程收尾"]
+            ],
+            4: [
+                ["08:30-09:00", "1号线·黄牛埔站", "出发集结", "预留出站接驳时间"],
+                ["09:00-09:20", "共享单车接驳", "黄牛埔站→黄牛埔森林公园南门", "1.2公里，直达环湖绿道入口"],
+                ["09:20-12:00", "黄牛埔森林公园", "环湖绿道骑行+森林漫步", "小众原生态森林，17公里环湖绿道，2.5小时充足骑行游览时间"],
+                ["12:00-12:20", "地铁通勤", "1号线黄牛埔站→黄江站", "1站直达，无需换乘"],
+                ["12:20-13:50", "黄江站", "客家菜特色午餐", "本地老字号，咸鸡、酿豆腐、客家酿三宝，地道客家风味"],
+                ["13:50-15:00", "地铁通勤", "1号线黄江站→鸿福路站，换乘2号线→蛤地站", "预留全程换乘+进出站时间，直达南城核心"],
+                ["15:00-17:00", "蛤地站打车10分钟", "东莞植物园", "热带园林打卡", "下午气温回落，室内+树荫游览，兰花园、热带植物区，2小时充足游览"],
+                ["17:00-17:20", "打车接驳", "东莞植物园→水濂山森林公园", "3公里，10分钟直达，顺向向南无折返"],
+                ["17:20-19:30", "水濂山森林公园", "瀑布+天池+登山步道", "傍晚气温舒适，登山难度低，打卡瀑布天池，俯瞰南城全景，天然森林氧吧"],
+                ["19:30-20:00", "打车接驳", "水濂山→蛤地站", "返程地铁，行程收尾"]
+            ]
+        };
+
+        const musicData = {
+            1: [
+                { time: "13:30-14:10", strawberry: "-", love: "Matt 吕彦良" },
+                { time: "14:10-14:50", strawberry: "颜人中", love: "-" },
+                { time: "14:50-15:30", strawberry: "-", love: "陈婧霏" },
+                { time: "15:30-16:10", strawberry: "徐佳莹", love: "-" },
+                { time: "16:10-16:50", strawberry: "-", love: "棱镜" },
+                { time: "16:50-17:30", strawberry: "余佳运", love: "-" },
+                { time: "17:30-18:10", strawberry: "-", love: "房东的猫" },
+                { time: "18:10-18:50", strawberry: "阿肆", love: "-" },
+                { time: "18:50-19:30", strawberry: "-", love: "万妮达 Vinida Weng" },
+                { time: "19:30-20:10", strawberry: "陈珊妮", love: "-" },
+                { time: "20:10-20:50", strawberry: "-", love: "陈粒" },
+                { time: "20:50-21:30", strawberry: "蔡健雅", love: "-" }
+            ],
+            2: [
+                { time: "13:30-14:10", strawberry: "-", love: "林二汶" },
+                { time: "14:10-14:50", strawberry: "JW 王灏儿", love: "-" },
+                { time: "14:50-15:30", strawberry: "-", love: "周柏豪" },
+                { time: "15:30-16:10", strawberry: "Gordon Flanders", love: "-" },
+                { time: "16:10-16:50", strawberry: "-", love: "连诗雅" },
+                { time: "16:50-17:30", strawberry: "moon tang", love: "-" },
+                { time: "17:30-18:10", strawberry: "-", love: "AGA 江海迦" },
+                { time: "18:10-18:50", strawberry: "陈蕾", love: "-" },
+                { time: "18:50-19:30", strawberry: "-", love: "陈柏宇" },
+                { time: "19:30-20:10", strawberry: "曾舜晞 (&babychair)", love: "-" },
+                { time: "20:10-20:50", strawberry: "-", love: "卫兰" },
+                { time: "20:50-21:30", strawberry: "蔡琴", love: "-" }
+            ],
+            3: [
+                { time: "13:30-13:55", strawberry: "-", love: "松山湖乐队大赛冠军" },
+                { time: "13:55-14:35", strawberry: "蛙池", love: "-" },
+                { time: "14:35-15:10", strawberry: "-", love: "虎啸春" },
+                { time: "15:10-15:50", strawberry: "夏日入侵企画", love: "-" },
+                { time: "15:50-16:30", strawberry: "-", love: "梅卡德尔" },
+                { time: "16:30-17:10", strawberry: "DOUDOU", love: "-" },
+                { time: "17:10-17:50", strawberry: "-", love: "声音碎片" },
+                { time: "17:50-18:30", strawberry: "马頔", love: "-" },
+                { time: "18:30-19:10", strawberry: "-", love: "Johnny Marr" },
+                { time: "19:10-19:50", strawberry: "痛仰", love: "-" },
+                { time: "19:50-20:50", strawberry: "-", love: "Pixies" },
+                { time: "20:50-21:30", strawberry: "万能青年旅店", love: "-" }
+            ]
+        };
+
+        let chart1, chart2;
+
+        function toggleMay1(plan) {
+            const btnA = document.getElementById('m1-btnA');
+            const btnB = document.getElementById('m1-btnB');
+            const container = document.getElementById('m1-itinerary');
+            
+            if (plan === 'A') {
+                btnA.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-rose-600";
+                btnB.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-500";
+            } else {
+                btnB.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-rose-600";
+                btnA.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-500";
+            }
+
+            container.innerHTML = m1Data[plan].map((item, index) => `
+                <div class="group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-full">
+                    <!-- 图片容器：固定比例 4:3 -->
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                        ${item.img ? `
+                            <img src="${item.img}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="${item.title}" loading="lazy">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80"></div>
+                        ` : `
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+                                <span class="text-3xl mb-2">📸</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider">Waiting for photo</span>
+                            </div>
+                        `}
+                        <!-- 时间标签悬浮在图片上 -->
+                        <div class="absolute top-3 left-3">
+                            <span class="px-2 py-1 bg-white/90 backdrop-blur-md text-[10px] font-black text-rose-600 rounded-lg shadow-sm">
+                                ${item.time}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 内容区域 -->
+                    <div class="p-4 flex flex-col flex-1 bg-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <h5 class="font-black text-slate-800 text-base leading-tight group-hover:text-rose-600 transition-colors">${item.title}</h5>
+                            <span class="shrink-0 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                                #${item.tag}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4">
+                            ${item.info}
+                        </p>
+                        
+                        <!-- 底部互动区域 -->
+                        <div class="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between">
+                            <div class="flex -space-x-2">
+                                <div class="w-6 h-6 rounded-full border-2 border-white bg-rose-100 flex items-center justify-center text-[10px]">📍</div>
+                                <div class="w-6 h-6 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-[10px]">✨</div>
+                            </div>
+                            ${item.details ? `
+                                <button onclick="showModal('${plan}', ${index})" class="text-[10px] font-bold text-rose-500 hover:text-rose-700 transition-colors flex items-center gap-1">
+                                    详情路线 <span class="text-xs">→</span>
+                                </button>
+                            ` : `
+                                <span class="text-[10px] font-bold text-slate-300">暂无详情</span>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
+        function showModal(plan, index) {
+            const item = m1Data[plan][index];
+            document.getElementById('modal-title').innerText = item.title;
+            document.getElementById('modal-time').innerText = item.time;
+            document.getElementById('modal-tag').innerText = '#' + item.tag;
+            document.getElementById('modal-details').innerText = item.details;
+            
+            const modal = document.getElementById('route-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden'; // 禁止背景滚动
+        }
 
-        document.querySelectorAll('.accordion-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const currentlyActive = document.querySelector('.accordion-button.active');
-                if (currentlyActive && currentlyActive !== button) {
-                    currentlyActive.classList.remove('active');
-                    currentlyActive.querySelector('.plus-minus').textContent = '+';
-                    currentlyActive.querySelector('.plus-minus').classList.remove('rotate-45');
-                }
+        function closeModal() {
+            const modal = document.getElementById('route-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto'; // 恢复滚动
+        }
 
-                button.classList.toggle('active');
-                const plusMinus = button.querySelector('.plus-minus');
-                if (button.classList.contains('active')) {
-                    plusMinus.textContent = '-';
-                    plusMinus.classList.add('rotate-45');
-                } else {
-                    plusMinus.textContent = '+';
-                    plusMinus.classList.remove('rotate-45');
-                }
-            });
+        // 点击遮罩层关闭
+        document.getElementById('route-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
         });
 
-        function renderTimeAllocationChart() {
-            const ctx = document.getElementById('timeAllocationChart').getContext('2d');
-            if (timeAllocationChartInstance) {
-                timeAllocationChartInstance.destroy();
-            }
-            timeAllocationChartInstance = new Chart(ctx, {
+        function renderMay5(routeNum) {
+            document.querySelectorAll('.m5-selector').forEach(b => {
+                b.className = "m5-selector p-4 rounded-2xl border-2 border-transparent bg-slate-100 text-slate-500 font-bold text-xs transition-all";
+            });
+            const activeBtn = document.getElementById(`m5-btn${routeNum}`);
+            activeBtn.className = "m5-selector p-4 rounded-2xl border-2 border-rose-500 bg-white text-rose-600 font-bold text-xs transition-all shadow-md";
+
+            const tbody = document.getElementById('m5-table-body');
+            tbody.innerHTML = m5Data[routeNum].map(row => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap font-mono text-slate-400 font-bold text-[11px]">${row[0]}</td>
+                    <td class="px-6 py-4 font-bold text-slate-700">${row[1]}</td>
+                    <td class="px-6 py-4 text-slate-600">${row[2]}</td>
+                    <td class="px-6 py-4"><span class="text-rose-500 font-bold">✨ ${row[3]}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById('sec-' + id).classList.remove('hidden');
+            document.getElementById('btn-' + id).classList.add('active');
+
+            if (id === 'analytics') setTimeout(initCharts, 100);
+            if (id === 'music') switchMusicDay(1);
+        }
+
+        let currentMusicDay = 1;
+
+        function switchMusicDay(day) {
+            currentMusicDay = day;
+            const content = document.getElementById('music-content');
+            const skeleton = document.getElementById('music-skeleton');
+            const error = document.getElementById('music-error');
+            
+            // 更新按钮状态
+            document.querySelectorAll('.music-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('border-transparent', 'bg-slate-100', 'text-slate-500');
+                btn.setAttribute('aria-selected', 'false');
+            });
+            const activeBtn = document.getElementById(`music-btn-${day}`);
+            activeBtn.classList.add('active');
+            activeBtn.classList.remove('border-transparent', 'bg-slate-100', 'text-slate-500');
+            activeBtn.setAttribute('aria-selected', 'true');
+
+            // 模拟加载效果 (骨架屏)
+            content.style.opacity = '0';
+            skeleton.classList.remove('hidden');
+            error.classList.add('hidden');
+
+            setTimeout(() => {
+                try {
+                    // 模拟可能发生的网络异常 (随机概率)
+                    // if (Math.random() < 0.1) throw new Error("Network error");
+                    
+                    renderMusicSchedule(day);
+                    skeleton.classList.add('hidden');
+                    content.style.opacity = '1';
+                } catch (e) {
+                    skeleton.classList.add('hidden');
+                    error.classList.remove('hidden');
+                }
+            }, 300); // 300ms 平滑过渡
+        }
+
+        function renderMusicSchedule(day) {
+            const list = document.getElementById('music-list');
+            const data = musicData[day];
+            
+            list.innerHTML = data.map(item => `
+                <div class="music-card music-grid bg-white p-4 md:p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                    <!-- 时间 -->
+                    <div class="flex items-center gap-2 md:gap-3">
+                        <span class="w-1 md:w-1.5 h-6 md:h-8 bg-rose-500 rounded-full shrink-0"></span>
+                        <span class="font-black text-slate-800 text-xs md:text-lg whitespace-nowrap">${item.time}</span>
+                    </div>
+                    
+                    <!-- 草莓舞台 -->
+                    <div class="min-w-0">
+                        <div class="p-2 md:p-3 rounded-xl md:rounded-2xl ${item.strawberry === '-' ? 'bg-slate-50 text-slate-300' : 'bg-rose-50 text-rose-600 font-black'}">
+                            <span class="artist-name text-[10px] md:text-sm" title="${item.strawberry === '-' ? '' : item.strawberry}">${item.strawberry}</span>
+                        </div>
+                    </div>
+
+                    <!-- 爱舞台 -->
+                    <div class="min-w-0">
+                        <div class="p-2 md:p-3 rounded-xl md:rounded-2xl ${item.love === '-' ? 'bg-slate-50 text-slate-300' : 'bg-blue-50 text-blue-600 font-black'}">
+                            <span class="artist-name text-[10px] md:text-sm" title="${item.love === '-' ? '' : item.love}">${item.love}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function retryMusicLoad() {
+            switchMusicDay(currentMusicDay);
+        }
+
+        function initCharts() {
+            if (chart1) chart1.destroy();
+            if (chart2) chart2.destroy();
+
+            const ctx1 = document.getElementById('kmChart').getContext('2d');
+            chart1 = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: ['第一天活动时长 (约6小时)', '第二天活动时长 (约9-10小时)'],
+                    labels: ['方案1：地标', '方案2：文艺', '方案3：历史', '方案4：懒人'],
                     datasets: [{
-                        label: '预计活动小时数',
-                        data: [6, 9.5],
-                        backgroundColor: [
-                            'rgba(251, 146, 60, 0.7)', 
-                            'rgba(20, 184, 166, 0.7)' 
-                        ],
-                        borderColor: [
-                            'rgba(251, 146, 60, 1)',
-                            'rgba(20, 184, 166, 1)'
-                        ],
-                        borderWidth: 1
+                        label: '预估公里数',
+                        data: [15, 12, 10, 6],
+                        backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b'],
+                        borderRadius: 10
                     }]
                 },
-                options: {
-                    responsive: true,
+                options: { 
+                    responsive: true, 
                     maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: '小时 (Hours)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += context.parsed.y + ' 小时';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const ctx2 = document.getElementById('ratioChart').getContext('2d');
+            chart2 = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['中心公园培训', '通勤交通', '美食打卡', '自然观光'],
+                    datasets: [{
+                        data: [1, 2, 4, 6],
+                        backgroundColor: ['#f43f5e', '#e2e8f0', '#fbbf24', '#4ade80'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    cutout: '70%'
                 }
             });
         }
-        const musicDay1Btn = document.getElementById("musicDay1Btn");
-  const musicDay2Btn = document.getElementById("musicDay2Btn");
-  const day1Img = document.getElementById("day1Img");
-  const day2Img = document.getElementById("day2Img");
 
-  musicDay1Btn.addEventListener("click", () => {
-    day1Img.classList.remove("hidden");
-    day2Img.classList.add("hidden");
-  });
-
-  musicDay2Btn.addEventListener("click", () => {
-    day2Img.classList.remove("hidden");
-    day1Img.classList.add("hidden");
-  });
-        document.addEventListener('DOMContentLoaded', () => {
-            showTab('overview'); 
-            showDayDetail('day1Detail', document.getElementById('day1Btn')); 
-            showDay2Option('juzizhou', document.querySelector('.day2-option-btn[onclick*="juzizhou"]')); // Ensure Day 2 option default is set
-            const firstAccordionButton = document.querySelector('.accordion-button');
-            if (firstAccordionButton) {
-                 firstAccordionButton.click(); 
-            }
-        });
-
+        // Init App
+        toggleMay1('A');
+        renderMay5(1);
     </script>
 </body>
 </html>
-
-
-
